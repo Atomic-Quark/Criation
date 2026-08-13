@@ -1,0 +1,34 @@
+{
+  "name": "@criation/mobile",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Criation Android and iOS application",
+  "main": "index.ts",
+  "scripts": {
+    "dev": "expo start",
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "build": "expo export --platform android --output-dir dist",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "clean": "node -e \"for (const d of ['dist','.expo']) require('node:fs').rmSync(d,{recursive:true,force:true})\""
+  },
+  "dependencies": {
+    "@criation/api": "*",
+    "@criation/config": "*",
+    "@criation/types": "*",
+    "@criation/ui": "*",
+    "@criation/utils": "*",
+    "@criation/validation": "*",
+    "expo": "~57.0.12",
+    "expo-status-bar": "~57.0.1",
+    "react": "19.2.3",
+    "react-native": "0.86.2"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.2",
+    "eslint": "^9.39.0"
+  }
+}

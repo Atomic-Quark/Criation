@@ -1,0 +1,24 @@
+{
+  "name": "@criation/validation",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Zod schemas and validation helpers shared across Criation apps",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@criation/types": "*",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@criation/config": "*",
+    "eslint": "^9.39.0"
+  }
+}

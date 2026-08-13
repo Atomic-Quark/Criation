@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./packages/config/tsconfig/base.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@criation/api": ["./packages/api/src/index.ts"],
+      "@criation/config": ["./packages/config/src/index.ts"],
+      "@criation/config/env": ["./packages/config/src/env.ts"],
+      "@criation/types": ["./packages/types/src/index.ts"],
+      "@criation/ui": ["./packages/ui/src/index.ts"],
+      "@criation/ui/web": ["./packages/ui/src/web/index.ts"],
+      "@criation/ui/native": ["./packages/ui/src/native/index.ts"],
+      "@criation/utils": ["./packages/utils/src/index.ts"],
+      "@criation/validation": ["./packages/validation/src/index.ts"]
+    }
+  },
+  "include": ["packages/*/src/**/*.ts", "packages/*/src/**/*.tsx"],
+  "exclude": ["node_modules", "**/dist", "**/.next", "**/.expo", "**/build"]
+}

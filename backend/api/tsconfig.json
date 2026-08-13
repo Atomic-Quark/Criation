@@ -1,0 +1,5 @@
+{
+  "extends": "@criation/config/tsconfig/node.json",
+  "include": ["src/**/*.ts", "tsup.config.ts"],
+  "exclude": ["node_modules", "dist"]
+}
