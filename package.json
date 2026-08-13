@@ -1,0 +1,48 @@
+{
+  "name": "criation",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Criation monorepo: web, mobile and admin apps, backend API and shared packages",
+  "license": "MIT",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "backend/*"
+  ],
+  "packageManager": "npm@11.19.0",
+  "engines": {
+    "node": ">=20.19.0",
+    "npm": ">=10.0.0"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "dev:web": "turbo run dev --filter=@criation/web",
+    "dev:admin": "turbo run dev --filter=@criation/admin",
+    "dev:mobile": "turbo run dev --filter=@criation/mobile",
+    "dev:backend": "turbo run dev --filter=@criation/backend",
+    "build": "turbo run build",
+    "build:web": "turbo run build --filter=@criation/web",
+    "build:admin": "turbo run build --filter=@criation/admin",
+    "build:mobile": "turbo run build --filter=@criation/mobile",
+    "build:backend": "turbo run build --filter=@criation/backend",
+    "start:backend": "npm run start --workspace=@criation/backend",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint -- --fix",
+    "typecheck": "turbo run typecheck",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "npm run lint && npm run typecheck && npm run format:check",
+    "clean": "turbo run clean"
+  },
+  "devDependencies": {
+    "@criation/config": "*",
+    "prettier": "^3.9.6",
+    "turbo": "^2.10.9",
+    "typescript": "~6.0.3"
+  },
+  "allowScripts": {
+    "unrs-resolver@1.12.2": true,
+    "esbuild@0.27.7": true,
+    "esbuild@0.28.2": true
+  }
+}
