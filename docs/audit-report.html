@@ -1,0 +1,1547 @@
+<title>Criation Readiness Audit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;600&display=swap">
+
+<style>
+  :root {
+    --ground: #F4F3F7;
+    --surface: #FFFFFF;
+    --surface-2: #FAF9FC;
+    --ink: #17161F;
+    --ink-2: #4A4757;
+    --ink-3: #75718A;
+    --line: #E2E0EA;
+    --line-soft: #EDEBF2;
+    --accent: #4338CA;
+    --accent-ink: #3A30AE;
+    --accent-soft: #ECE9FB;
+    --crit: #B31B3F;
+    --crit-soft: #FBE9ED;
+    --high: #9A5408;
+    --high-soft: #FBF0E2;
+    --med: #0F6270;
+    --med-soft: #E4F2F4;
+    --low: #5B5878;
+    --low-soft: #EFEEF4;
+    --ok: #14713B;
+    --ok-soft: #E5F3EA;
+
+    --f-display: "Archivo", "Segoe UI", system-ui, sans-serif;
+    --f-body: "Source Serif 4", Georgia, "Times New Roman", serif;
+    --f-mono: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0E0D14;
+      --surface: #17161F;
+      --surface-2: #1D1B27;
+      --ink: #EDECF2;
+      --ink-2: #B6B2C4;
+      --ink-3: #85819A;
+      --line: #2C2A38;
+      --line-soft: #232130;
+      --accent: #A99BFF;
+      --accent-ink: #C0B5FF;
+      --accent-soft: #221F35;
+      --crit: #FF7089;
+      --crit-soft: #2C1620;
+      --high: #EDA45E;
+      --high-soft: #2A1F14;
+      --med: #62C6D6;
+      --med-soft: #12242A;
+      --low: #9E99BA;
+      --low-soft: #201E2B;
+      --ok: #63D693;
+      --ok-soft: #12261A;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #0E0D14;
+    --surface: #17161F;
+    --surface-2: #1D1B27;
+    --ink: #EDECF2;
+    --ink-2: #B6B2C4;
+    --ink-3: #85819A;
+    --line: #2C2A38;
+    --line-soft: #232130;
+    --accent: #A99BFF;
+    --accent-ink: #C0B5FF;
+    --accent-soft: #221F35;
+    --crit: #FF7089;
+    --crit-soft: #2C1620;
+    --high: #EDA45E;
+    --high-soft: #2A1F14;
+    --med: #62C6D6;
+    --med-soft: #12242A;
+    --low: #9E99BA;
+    --low-soft: #201E2B;
+    --ok: #63D693;
+    --ok-soft: #12261A;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--f-body);
+    font-size: 17px;
+    line-height: 1.62;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .shell {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 24px 96px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  /* ---------- masthead ---------- */
+
+  .masthead {
+    padding: 64px 0 36px;
+    border-bottom: 2px solid var(--ink);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .eyebrow {
+    font-family: var(--f-mono);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+  }
+
+  .eyebrow .sep { color: var(--ink-3); font-weight: 400; }
+
+  h1 {
+    font-family: var(--f-display);
+    font-weight: 700;
+    font-size: clamp(38px, 6vw, 62px);
+    line-height: 1.02;
+    letter-spacing: -0.028em;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .standfirst {
+    font-size: 20px;
+    line-height: 1.5;
+    color: var(--ink-2);
+    max-width: 62ch;
+    margin: 0;
+  }
+
+  /* ---------- verdict ---------- */
+
+  .verdict {
+    margin: 0 0 8px;
+    padding: 26px 28px;
+    background: var(--crit-soft);
+    border: 1px solid color-mix(in srgb, var(--crit) 28%, transparent);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .verdict h2 {
+    font-family: var(--f-display);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--crit);
+    margin: 0;
+  }
+
+  .verdict p { margin: 0; color: var(--ink); max-width: 74ch; }
+
+  /* ---------- scorecard ---------- */
+
+  .scorecard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    margin: 40px 0 0;
+  }
+
+  .metric {
+    background: var(--surface);
+    padding: 18px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .metric .k {
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .metric .v {
+    font-family: var(--f-display);
+    font-size: 27px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.15;
+  }
+
+  .metric .n { font-size: 13.5px; color: var(--ink-3); line-height: 1.4; }
+
+  .v.bad { color: var(--crit); }
+  .v.warn { color: var(--high); }
+  .v.good { color: var(--ok); }
+
+  /* ---------- layout with rail ---------- */
+
+  .body-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  @media (min-width: 1080px) {
+    .body-grid {
+      grid-template-columns: 208px minmax(0, 1fr);
+      gap: 56px;
+      align-items: start;
+    }
+    .rail { display: block; }
+  }
+
+  .rail {
+    display: none;
+    position: sticky;
+    top: 28px;
+    padding-top: 60px;
+  }
+
+  .rail ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    border-left: 1px solid var(--line);
+  }
+
+  .rail a {
+    display: block;
+    font-family: var(--f-mono);
+    font-size: 11.5px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    text-decoration: none;
+    padding: 7px 0 7px 14px;
+    margin-left: -1px;
+    border-left: 2px solid transparent;
+  }
+
+  .rail a:hover, .rail a:focus-visible {
+    color: var(--accent-ink);
+    border-left-color: var(--accent);
+  }
+
+  /* ---------- sections ---------- */
+
+  section { padding-top: 60px; scroll-margin-top: 20px; }
+
+  h2.sec {
+    font-family: var(--f-display);
+    font-size: clamp(25px, 3vw, 32px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 6px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--ink);
+    text-wrap: balance;
+  }
+
+  h3 {
+    font-family: var(--f-display);
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin: 34px 0 8px;
+  }
+
+  h4 {
+    font-family: var(--f-mono);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 28px 0 10px;
+  }
+
+  p { max-width: 72ch; }
+  section > p:first-of-type { margin-top: 18px; }
+
+  code, .mono { font-family: var(--f-mono); font-size: 0.855em; }
+
+  code {
+    background: var(--surface-2);
+    border: 1px solid var(--line-soft);
+    padding: 1px 5px;
+    color: var(--accent-ink);
+    word-break: break-word;
+  }
+
+  ul.plain { padding-left: 20px; max-width: 72ch; }
+  ul.plain li { margin-bottom: 7px; }
+
+  /* ---------- wiring board ---------- */
+
+  .wire {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    margin-top: 22px;
+  }
+
+  @media (min-width: 720px) {
+    .wire { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .wire-col { background: var(--surface); display: flex; flex-direction: column; }
+
+  .wire-head {
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink-3);
+    background: var(--surface-2);
+  }
+
+  .wire-col ul { list-style: none; margin: 0; padding: 8px 0; }
+
+  .wire-col li {
+    font-size: 14.5px;
+    padding: 5px 16px;
+    color: var(--ink-2);
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+    line-height: 1.4;
+  }
+
+  .dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    flex: 0 0 6px;
+    border-radius: 50%;
+    margin-top: 7px;
+  }
+  .dot.live { background: var(--ok); }
+  .dot.local { background: var(--high); }
+  .dot.dead { background: var(--crit); }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-top: 14px;
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .legend span { display: flex; align-items: center; gap: 7px; }
+  .legend .dot { margin-top: 0; }
+
+  /* ---------- findings ---------- */
+
+  .findings { margin-top: 24px; border-top: 1px solid var(--line); }
+
+  .finding {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 6px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  @media (min-width: 760px) {
+    .finding { grid-template-columns: 92px minmax(0, 1fr); gap: 8px 24px; }
+    .finding .chipwrap { padding-top: 3px; }
+  }
+
+  .chip {
+    display: inline-block;
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    padding: 3px 8px;
+    border: 1px solid currentColor;
+  }
+  .chip.c { color: var(--crit); background: var(--crit-soft); }
+  .chip.h { color: var(--high); background: var(--high-soft); }
+  .chip.m { color: var(--med); background: var(--med-soft); }
+  .chip.l { color: var(--low); background: var(--low-soft); }
+
+  .finding .title {
+    font-family: var(--f-display);
+    font-size: 17.5px;
+    font-weight: 600;
+    letter-spacing: -0.008em;
+    margin: 0;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+
+  .finding .where {
+    font-family: var(--f-mono);
+    font-size: 12px;
+    color: var(--ink-3);
+    word-break: break-all;
+    margin: 2px 0 0;
+  }
+
+  .finding p.what { margin: 8px 0 0; font-size: 16px; color: var(--ink-2); max-width: 74ch; }
+
+  .fix {
+    margin: 10px 0 0;
+    padding: 10px 14px;
+    background: var(--accent-soft);
+    border-left: 2px solid var(--accent);
+    font-size: 15.5px;
+    color: var(--ink);
+    max-width: 74ch;
+  }
+  .fix b {
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    display: block;
+    margin-bottom: 2px;
+    font-weight: 600;
+  }
+
+  /* ---------- tables ---------- */
+
+  .tablewrap { overflow-x: auto; margin-top: 20px; border: 1px solid var(--line); }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 560px;
+    background: var(--surface);
+    font-size: 15px;
+  }
+
+  th {
+    font-family: var(--f-mono);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    text-align: left;
+    color: var(--ink-3);
+    padding: 11px 16px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line-soft);
+    color: var(--ink-2);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  td:first-child { color: var(--ink); font-weight: 600; }
+  tr:last-child td { border-bottom: none; }
+
+  /* ---------- phases ---------- */
+
+  .phase {
+    border: 1px solid var(--line);
+    background: var(--surface);
+    padding: 22px 24px 24px;
+    margin-top: 18px;
+  }
+
+  .phase-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 4px;
+  }
+
+  .phase-num {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--accent-ink);
+    background: var(--accent-soft);
+    padding: 3px 8px;
+  }
+
+  .phase-title {
+    font-family: var(--f-display);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    margin: 0;
+    flex: 1 1 240px;
+  }
+
+  .phase-meta {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  .phase ul { padding-left: 20px; margin: 12px 0 0; }
+  .phase li { margin-bottom: 6px; color: var(--ink-2); font-size: 16px; }
+  .phase li strong { color: var(--ink); font-weight: 600; }
+
+  /* ---------- checklist ---------- */
+
+  .checks {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    margin-top: 22px;
+  }
+
+  .check-group { background: var(--surface); padding: 18px 20px 20px; }
+
+  .check-group h5 {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    margin: 0 0 10px;
+  }
+
+  .check-group ul { list-style: none; margin: 0; padding: 0; }
+
+  .check-group li {
+    font-size: 14.5px;
+    line-height: 1.45;
+    color: var(--ink-2);
+    padding: 5px 0 5px 20px;
+    position: relative;
+  }
+
+  .check-group li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 11px;
+    width: 9px;
+    height: 9px;
+    border: 1px solid var(--ink-3);
+  }
+
+  footer.end {
+    margin-top: 72px;
+    padding-top: 22px;
+    border-top: 2px solid var(--ink);
+    font-family: var(--f-mono);
+    font-size: 11.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+  }
+
+  a { color: var(--accent-ink); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+  }
+</style>
+
+<div class="shell">
+
+  <header class="masthead">
+    <div class="eyebrow">
+      <span>Criation Monorepo</span>
+      <span class="sep">/</span>
+      <span>branch CT04</span>
+      <span class="sep">/</span>
+      <span>23 August 2026</span>
+    </div>
+    <h1>Criation Readiness Audit</h1>
+    <p class="standfirst">
+      A full pass over the monorepo — web storefront, admin, mobile, Express API and shared
+      packages — covering what works, what is only pretending to work, and everything that
+      stands between this code and a site that can safely take a customer's money.
+    </p>
+  </header>
+
+  <div class="scorecard">
+    <div class="metric">
+      <span class="k">Build &amp; typecheck</span>
+      <span class="v good">Pass</span>
+      <span class="n">All 10 workspaces compile; web builds 30 routes</span>
+    </div>
+    <div class="metric">
+      <span class="k">Lint</span>
+      <span class="v bad">234</span>
+      <span class="n">errors in <span class="mono">@criation/web</span>; <span class="mono">turbo lint</span> exits 1</span>
+    </div>
+    <div class="metric">
+      <span class="k">Tests / CI</span>
+      <span class="v bad">0</span>
+      <span class="n">No test files, no <span class="mono">.github</span> workflows</span>
+    </div>
+    <div class="metric">
+      <span class="k">Payment capability</span>
+      <span class="v bad">None</span>
+      <span class="n">No gateway, no server-side charge, no webhook</span>
+    </div>
+    <div class="metric">
+      <span class="k">Server-persisted data</span>
+      <span class="v warn">Auth only</span>
+      <span class="n">Orders, cart, wallet live in <span class="mono">localStorage</span></span>
+    </div>
+    <div class="metric">
+      <span class="k">Dependency advisories</span>
+      <span class="v warn">16</span>
+      <span class="n">5 high, 10 moderate, 1 low — mostly Expo chain</span>
+    </div>
+  </div>
+
+  <div class="body-grid">
+
+    <nav class="rail" aria-label="Sections">
+      <ol>
+        <li><a href="#verdict">Verdict</a></li>
+        <li><a href="#wiring">What's wired</a></li>
+        <li><a href="#critical">Critical</a></li>
+        <li><a href="#high">High</a></li>
+        <li><a href="#medium">Medium</a></li>
+        <li><a href="#low">Low</a></li>
+        <li><a href="#missing">Missing pieces</a></li>
+        <li><a href="#payments">Payments</a></li>
+        <li><a href="#hardening">Hardening</a></li>
+        <li><a href="#roadmap">Roadmap</a></li>
+      </ol>
+    </nav>
+
+    <main>
+
+      <section id="verdict">
+        <h2 class="sec">The verdict</h2>
+        <div class="verdict" style="margin-top:24px">
+          <h2>Not safe to launch — and it cannot currently take payment</h2>
+          <p>
+            Criation is a genuinely impressive front-end: 30 routes, a rich storefront, seller,
+            supplier, dropship, affiliate and admin consoles, invoices, a wallet, coupons and
+            multi-currency. But almost none of it is backed by a server. Orders are created in the
+            browser, stamped <code>paymentStatus: "paid"</code>, and saved to <code>localStorage</code>.
+            The card form on checkout has a hard-coded test card in it and sends nothing anywhere.
+            Any registered user can make themselves an administrator by adding one field to the
+            login request, and an unauthenticated <code>GET /api/seed</code> creates an admin
+            account with a published password.
+          </p>
+          <p>
+            Treat what exists as a high-fidelity prototype of the product. The work ahead is to
+            build the server that the prototype has been miming — auth, authorization, catalog,
+            cart, orders, payments — and then harden it.
+          </p>
+        </div>
+
+        <h3>What is genuinely good</h3>
+        <ul class="plain">
+          <li>Monorepo hygiene is strong: Turborepo tasks, shared <code>eslint</code>/<code>tsconfig</code> presets, workspace packages, clean env-resolution helper that never throws at import time.</li>
+          <li>TypeScript is strict enough to be useful and everything typechecks across all 10 workspaces.</li>
+          <li>Mongoose schemas for <span class="mono">User</span>, <span class="mono">Product</span>, <span class="mono">Order</span> and <span class="mono">Upload</span> are well-modelled with indexes, enums and a <code>toSafeProfile()</code> that correctly strips the password hash.</li>
+          <li>Passwords are hashed with bcrypt — never stored in plain text.</li>
+          <li>The auth cookie is <code>httpOnly</code>, <code>sameSite: lax</code> and <code>secure</code> in production. The right shape, just not yet enforced anywhere.</li>
+          <li>The UI itself is production-quality: dark mode without flash, responsive layout, toasts, skeletons, a real design language.</li>
+        </ul>
+      </section>
+
+      <section id="wiring">
+        <h2 class="sec">What is actually wired together</h2>
+        <p>
+          The single most important finding is not a bug — it is the shape of the system. The
+          storefront makes exactly <strong>four</strong> network calls in the entire codebase:
+          login, register, logout and file upload. Everything else is browser state.
+        </p>
+
+        <div class="wire">
+          <div class="wire-col">
+            <div class="wire-head">Reaches a server</div>
+            <ul>
+              <li><span class="dot live"></span><span>Login → <span class="mono">/api/auth/login</span></span></li>
+              <li><span class="dot live"></span><span>Register → <span class="mono">/api/auth/register</span></span></li>
+              <li><span class="dot live"></span><span>Logout → <span class="mono">/api/auth/logout</span></span></li>
+              <li><span class="dot live"></span><span>File upload → <span class="mono">/api/storage/upload</span></span></li>
+            </ul>
+          </div>
+          <div class="wire-col">
+            <div class="wire-head">Browser-only state</div>
+            <ul>
+              <li><span class="dot local"></span><span>Cart &amp; saved-for-later</span></li>
+              <li><span class="dot local"></span><span>Orders &amp; order tracking</span></li>
+              <li><span class="dot local"></span><span>Wallet balance &amp; transactions</span></li>
+              <li><span class="dot local"></span><span>Wishlist</span></li>
+              <li><span class="dot local"></span><span>Product catalog &amp; seller listings</span></li>
+              <li><span class="dot local"></span><span>Coupons &amp; discounts</span></li>
+              <li><span class="dot local"></span><span>Notifications</span></li>
+              <li><span class="dot local"></span><span>Admin / role state</span></li>
+            </ul>
+          </div>
+          <div class="wire-col">
+            <div class="wire-head">Built but never called</div>
+            <ul>
+              <li><span class="dot dead"></span><span><span class="mono">/api/products</span> (GET + POST)</span></li>
+              <li><span class="dot dead"></span><span><span class="mono">/api/orders</span> (GET + POST)</span></li>
+              <li><span class="dot dead"></span><span><span class="mono">/api/auth/me</span> — session never restored</span></li>
+              <li><span class="dot dead"></span><span><span class="mono">backend/api</span> Express service</span></li>
+              <li><span class="dot dead"></span><span><span class="mono">@criation/api</span> client, <span class="mono">@criation/ui</span>, <span class="mono">@criation/validation</span></span></li>
+              <li><span class="dot dead"></span><span><span class="mono">apps/admin</span>, <span class="mono">apps/mobile</span> — hardcoded sample arrays</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="legend">
+          <span><i class="dot live"></i> Server-backed</span>
+          <span><i class="dot local"></i> localStorage only</span>
+          <span><i class="dot dead"></i> Dead code</span>
+        </div>
+
+        <h3>Two backends, neither of them the real one</h3>
+        <p>
+          <span class="mono">backend/api</span> is an Express service with an in-memory catalog and
+          a placeholder login that only accepts <code>demo@criation.example</code>. Nothing calls
+          it. The web app instead grew its own Next.js route handlers talking to MongoDB. Those two
+          worlds also disagree on fundamentals: <span class="mono">@criation/types</span> stores
+          prices in paise (<code>249900</code> = ₹2,499) while <span class="mono">apps/web/src/types/store.ts</span>
+          stores rupees (<code>399</code>). Any future integration between them silently multiplies
+          or divides every price by 100.
+        </p>
+      </section>
+
+      <section id="critical">
+        <h2 class="sec">Critical — fix before this is exposed to anyone</h2>
+
+        <div class="findings">
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip c">C-1</span></div>
+            <div>
+              <p class="title">Any user can promote themselves to administrator</p>
+              <p class="where">apps/web/src/app/api/auth/login/route.ts · apps/web/src/app/api/auth/register/route.ts</p>
+              <p class="what">
+                Both routes read <code>role</code> straight from the request body. Login writes it
+                onto the user after the password check (<code>user.role = role; if (role === "admin") user.isAdminVerified = true; await user.save()</code>),
+                and register creates the account with whatever role was posted. One <code>curl</code>
+                with <code>"role":"admin"</code> turns any account into a verified superadmin, permanently, in the database.
+              </p>
+              <p class="fix"><b>Fix</b>Never accept <code>role</code> from a client. Force <code>role: "customer"</code> on registration and drop the role-switching branch from login entirely. Role changes belong behind an admin-only endpoint with an audit log.</p>
+            </div>
+          </div>
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip c">C-2</span></div>
+            <div>
+              <p class="title">A public URL creates an admin account with a known password</p>
+              <p class="where">apps/web/src/app/api/seed/route.ts</p>
+              <p class="what">
+                The seed route exports both <code>POST</code> and <code>GET</code>, has no
+                authentication, and creates <code>mrdiv@criation.example</code> with
+                <code>role: "admin"</code>, <code>isAdminVerified: true</code> and the password
+                <code>admin123</code>. Anyone who opens <span class="mono">/api/seed</span> on the
+                deployed site can then log in as an administrator. It can also be hit in a loop to
+                hammer the database.
+              </p>
+              <p class="fix"><b>Fix</b>Delete the route from the app. Seeding belongs in a CLI script run against a database by an operator, never in an HTTP handler. If it must stay, gate it on <code>NODE_ENV !== "production"</code> plus a secret header, and remove the <code>GET</code> export.</p>
+            </div>
+          </div>
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip c">C-3</span></div>
+            <div>
+              <p class="title">The site cannot take payment — orders are marked paid in the browser</p>
+              <p class="where">apps/web/src/context/StoreContext.tsx · apps/web/src/app/checkout/page.tsx</p>
+              <p class="what">
+                <code>createOrder()</code> runs entirely client-side: it invents an order number,
+                sets <code>paymentStatus: "paid"</code> and a fake <code>transactionId</code>, waits
+                1,200&nbsp;ms on a <code>setTimeout</code> and pushes to the confirmation page. The
+                card form has <code>defaultValue="4532 8910 2341 8912"</code> and CVV
+                <code>842</code> baked in and reads them nowhere. The UPI step shows a static QR
+                icon, not a real intent. No gateway, no charge, no webhook, no ledger.
+              </p>
+              <p class="fix"><b>Fix</b>See the <a href="#payments">Payments</a> section. Nothing about the current checkout is salvageable as a payment path; the UI can stay, the flow underneath must be rebuilt server-first.</p>
+            </div>
+          </div>
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip c">C-4</span></div>
+            <div>
+              <p class="title">The JWT signing secret is published in the source tree</p>
+              <p class="where">apps/web/src/lib/auth/jwt.ts · apps/web/.env.example · .env.example</p>
+              <p class="what">
+                <code>process.env.JWT_SECRET || "criation_jwt_master_secret_key_2026_artisan_dropship_platform_v2"</code>
+                — the fallback is a real, working secret, and the identical value sits in
+                <span class="mono">apps/web/.env.example</span>, which is currently untracked but
+                <em>not</em> git-ignored, so the next <code>git add .</code> commits it. Anyone with
+                the repository can forge a valid admin token for any deployment that forgot to set
+                the variable.
+              </p>
+              <p class="fix"><b>Fix</b>Throw at boot when <code>JWT_SECRET</code> is missing (<code>requireEnv()</code> already exists in <span class="mono">@criation/config</span>). Rotate the secret, replace both example files with a placeholder, and add a secret-scanning hook.</p>
+            </div>
+          </div>
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip c">C-5</span></div>
+            <div>
+              <p class="title">Admin, seller and supplier consoles have no server-side authorization</p>
+              <p class="where">apps/web/src/app/admin/page.tsx · StoreContext.authenticateAdmin · no middleware.ts</p>
+              <p class="what">
+                There is no <span class="mono">middleware.ts</span> anywhere in the repo, and no
+                route handler ever checks a role. <code>/admin</code>, <code>/seller</code>,
+                <code>/supplier</code> and <code>/dropship</code> are statically prerendered pages
+                gated by React state. <code>authenticateAdmin()</code> accepts the literal strings
+                <code>admin123</code>, <code>superadmin</code>, <code>criation_admin</code>,
+                <code>demo</code> or <code>admin</code> — and the failure toast helpfully says
+                <em>"Try 'admin123'"</em>. Editing <code>criation_user_v1</code> in devtools is
+                equally effective.
+              </p>
+              <p class="fix"><b>Fix</b>Add <span class="mono">middleware.ts</span> that verifies the JWT and role for every <code>/admin</code>, <code>/seller</code>, <code>/supplier</code> and privileged <code>/api</code> path, plus a per-handler <code>requireRole()</code> check. Delete the master-key mechanism.</p>
+            </div>
+          </div>
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip c">C-6</span></div>
+            <div>
+              <p class="title">Write endpoints are unauthenticated and mass-assign the request body</p>
+              <p class="where">apps/web/src/app/api/products/route.ts · apps/web/src/app/api/orders/route.ts</p>
+              <p class="what">
+                <code>Product.create({...body})</code> and <code>Order.create({...body, date})</code>
+                spread unvalidated client JSON into Mongoose. No auth, no schema validation. A
+                stranger can insert catalog entries, or insert orders with
+                <code>total: 1</code> and <code>paymentStatus: "paid"</code>. Notably
+                <span class="mono">@criation/validation</span> already contains Zod schemas for
+                exactly these shapes — they are simply not used by the web app.
+              </p>
+              <p class="fix"><b>Fix</b>Require an authenticated session and the right role, parse the body with the existing Zod schemas, and allowlist fields explicitly. Money fields must be computed server-side and never accepted from a client.</p>
+            </div>
+          </div>
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip c">C-7</span></div>
+            <div>
+              <p class="title">Anonymous file upload with no type, size or quota limit</p>
+              <p class="where">apps/web/src/app/api/storage/upload/route.ts</p>
+              <p class="what">
+                Anyone can POST any file of any size and it is written to
+                <span class="mono">public/uploads</span> and served from your origin. There is no
+                session check, no MIME allowlist, no byte cap and no rate limit. An
+                <span class="mono">.html</span> or <span class="mono">.svg</span> upload becomes
+                stored XSS on your own domain (same-origin, so it can read the auth cookie's
+                effects); a large loop fills the disk. It is also a plain multipart POST, which
+                means it is CSRF-able even with <code>sameSite: lax</code>.
+              </p>
+              <p class="fix"><b>Fix</b>Require auth, allowlist <code>image/jpeg|png|webp|avif</code>, verify the magic bytes rather than trusting <code>file.type</code>, cap at a few MB, re-encode through <span class="mono">sharp</span>, and store on S3/Cloudinary behind a CDN — not in <span class="mono">public/</span>.</p>
+            </div>
+          </div>
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip c">C-8</span></div>
+            <div>
+              <p class="title">A database outage becomes an authentication bypass</p>
+              <p class="where">apps/web/src/app/api/auth/login/route.ts (catch block) · api/auth/me</p>
+              <p class="what">
+                When MongoDB is unreachable, login falls into a catch block that accepts any of five
+                demo addresses — including <code>admin@criation.example</code> — with the password
+                <code>password123</code> or <code>admin123</code>, and issues a real signed JWT with
+                whatever role the body asked for. <code>/api/auth/me</code> has the same pattern:
+                on a DB error it returns a successful session built from the token alone. An
+                attacker who can degrade your database (or simply catch a real outage) gets admin.
+              </p>
+              <p class="fix"><b>Fix</b>Delete every fallback branch. A datastore failure must return <code>503</code>, never a credential. Same for the mock-catalog fallbacks in the product and order routes — serving fixtures as if they were real data hides outages from your monitoring too.</p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <section id="high">
+        <h2 class="sec">High</h2>
+
+        <div class="findings">
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip h">H-1</span></div>
+            <div>
+              <p class="title">Identity is read from localStorage and never verified against the server</p>
+              <p class="where">apps/web/src/context/StoreContext.tsx</p>
+              <p class="what">
+                The auth cookie is set correctly, but nothing ever validates it after login —
+                <code>/api/auth/me</code> is never fetched. On every page load the entire user
+                object, including <code>role</code>, <code>isAdminVerified</code> and
+                <code>walletBalance</code>, is rehydrated from <code>criation_user_v1</code>, which
+                the user controls.
+              </p>
+              <p class="fix"><b>Fix</b>Restore the session server-side on request (a server component or <code>/api/auth/me</code> call on mount), and treat localStorage as a cache of non-authoritative UI state only.</p>
+            </div>
+          </div>
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip h">H-2</span></div>
+            <div>
+              <p class="title">Every first-time visitor arrives already signed in as a named user</p>
+              <p class="where">apps/web/src/lib/data/mockCatalog.ts → initialUserProfile</p>
+              <p class="what">
+                The default store state is <code>isAuthenticated: true</code> for "Divyanshu Sharma"
+                with a ₹750 wallet, 350 loyalty points, a Gurugram address and a Gold tier. A brand
+                new visitor sees someone else's name, address and balance, and can check out without
+                ever creating an account.
+              </p>
+              <p class="fix"><b>Fix</b>Default to a genuine guest: no name, no wallet, <code>isAuthenticated: false</code>. Keep the demo profile behind a seed script.</p>
+            </div>
+          </div>
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip h">H-3</span></div>
+            <div>
+              <p class="title">Order history exists only in the customer's browser</p>
+              <p class="where">apps/web/src/context/StoreContext.tsx → createOrder / STORAGE_KEYS.ORDERS</p>
+              <p class="what">
+                Orders are never sent to <span class="mono">/api/orders</span>. Clearing site data,
+                switching device or opening a private window destroys every order. You have no
+                server record to fulfil, refund, dispute or account for — and no way to answer a
+                customer asking where their parcel is.
+              </p>
+              <p class="fix"><b>Fix</b>Make order creation a server operation that returns the persisted order; the client should only ever render what the server confirmed.</p>
+            </div>
+          </div>
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip h">H-4</span></div>
+            <div>
+              <p class="title">The wallet is free money and coupons are validated client-side</p>
+              <p class="where">StoreContext → addWalletMoney, applyCoupon, cancelOrder</p>
+              <p class="what">
+                <code>addWalletMoney(amount)</code> credits the balance with no payment step at all.
+                Cancelling a "paid" order refunds the full total into the wallet. Coupon codes are
+                matched against a client-side array, so discount rules, minimum-order values and
+                expiry are all editable by the customer. Totals, GST and shipping are likewise
+                computed in the browser.
+              </p>
+              <p class="fix"><b>Fix</b>Move pricing, coupon validation and every wallet mutation server-side into a ledger with immutable entries. The client sends item IDs and quantities; the server returns the price.</p>
+            </div>
+          </div>
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip h">H-5</span></div>
+            <div>
+              <p class="title">No security response headers at all</p>
+              <p class="where">apps/web/next.config.ts</p>
+              <p class="what">
+                No <code>headers()</code> block: no Content-Security-Policy, HSTS,
+                <code>X-Frame-Options</code>, <code>X-Content-Type-Options</code>,
+                <code>Referrer-Policy</code> or <code>Permissions-Policy</code>. The site can be
+                framed for clickjacking, and there is no CSP backstop against injected script.
+              </p>
+              <p class="fix"><b>Fix</b>Add a <code>headers()</code> block with a nonce-based CSP, <code>Strict-Transport-Security: max-age=63072000; includeSubDomains; preload</code>, <code>frame-ancestors 'none'</code>, <code>nosniff</code> and <code>Referrer-Policy: strict-origin-when-cross-origin</code>.</p>
+            </div>
+          </div>
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip h">H-6</span></div>
+            <div>
+              <p class="title">The image optimizer is an open proxy</p>
+              <p class="where">apps/web/next.config.ts → images.remotePatterns</p>
+              <p class="what">
+                <code>{ protocol: "https", hostname: "**" }</code> lets anyone pass any URL through
+                <span class="mono">/_next/image</span>. That turns your server into a bandwidth
+                relay and an SSRF-adjacent fetcher, billed to you.
+              </p>
+              <p class="fix"><b>Fix</b>Replace the wildcard with the explicit hosts you serve from (your CDN, Cloudinary, Unsplash) and set <code>images.dangerouslyAllowSVG: false</code>.</p>
+            </div>
+          </div>
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip h">H-7</span></div>
+            <div>
+              <p class="title">No rate limiting, lockout or bot protection anywhere</p>
+              <p class="where">all route handlers</p>
+              <p class="what">
+                Login, register, upload and seed can each be called without limit. Credential
+                stuffing, mass account creation and disk-filling uploads are all unimpeded, and
+                there is no CAPTCHA or device check on any sensitive action.
+              </p>
+              <p class="fix"><b>Fix</b>Per-IP and per-account rate limits (Upstash Redis or your host's WAF), exponential lockout after failed logins, and a bot check on registration and password reset.</p>
+            </div>
+          </div>
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip h">H-8</span></div>
+            <div>
+              <p class="title">No password policy, no verification, no password reset</p>
+              <p class="where">apps/web/src/app/api/auth/register/route.ts</p>
+              <p class="what">
+                Registration accepts a one-character password. Email and phone are never verified,
+                so accounts can be created against addresses the user does not own. There is no
+                forgot-password flow at all — a customer who forgets their password is permanently
+                locked out, and support has no recovery path.
+              </p>
+              <p class="fix"><b>Fix</b>Minimum 8–12 characters with a breach check (Have I Been Pwned k-anonymity API), email verification before first order, and a token-based reset flow with short expiry and single use.</p>
+            </div>
+          </div>
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip h">H-9</span></div>
+            <div>
+              <p class="title">Uploads to the local filesystem will not work in production</p>
+              <p class="where">apps/web/src/app/api/storage/upload/route.ts</p>
+              <p class="what">
+                The route writes to <code>process.cwd()/public/uploads</code>. On Vercel, Netlify or
+                any container that redeploys, that directory is read-only or ephemeral — uploads
+                either throw or vanish on the next deploy, and never appear on other instances.
+              </p>
+              <p class="fix"><b>Fix</b>Upload to object storage (S3 + CloudFront, Cloudinary, or UploadThing) using presigned URLs so the file never transits your server.</p>
+            </div>
+          </div>
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip h">H-10</span></div>
+            <div>
+              <p class="title">16 dependency advisories, 5 rated high</p>
+              <p class="where">npm audit</p>
+              <p class="what">
+                Almost all of them come through the Expo toolchain in
+                <span class="mono">apps/mobile</span> (<span class="mono">@expo/config-plugins</span>
+                and friends). Build-time only today, but they gate any clean CI pipeline.
+              </p>
+              <p class="fix"><b>Fix</b>Run <code>npm audit fix</code>, bump Expo to a patched SDK, and add <code>npm audit --omit=dev</code> to CI as a blocking step.</p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <section id="medium">
+        <h2 class="sec">Medium</h2>
+
+        <div class="findings">
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip m">M-1</span></div>
+            <div>
+              <p class="title">234 lint errors block any quality gate</p>
+              <p class="where">apps/web — turbo run lint exits 1</p>
+              <p class="what">Mostly unused imports and <code>any</code> in the new storefront code, plus a few unescaped entities. Until this is clean you cannot make lint a merge requirement, which is how the rest of the list stays fixed.</p>
+              <p class="fix"><b>Fix</b><code>npm run lint:fix</code>, then type the remaining <code>catch (e: any)</code> blocks as <code>unknown</code> and narrow.</p>
+            </div>
+          </div>
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip m">M-2</span></div>
+            <div>
+              <p class="title">Zero tests and no CI pipeline</p>
+              <p class="where">repository root</p>
+              <p class="what">No test files exist and there is no <span class="mono">.github/workflows</span>. Nothing prevents a regression in pricing, auth or checkout from reaching production.</p>
+              <p class="fix"><b>Fix</b>Vitest for pricing/coupon/tax logic and every auth handler, Playwright for the browse → cart → checkout → order journey, and a GitHub Actions workflow running <code>lint</code>, <code>typecheck</code>, <code>test</code>, <code>build</code> and <code>audit</code> on every PR.</p>
+            </div>
+          </div>
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip m">M-3</span></div>
+            <div>
+              <p class="title">Two backends and two type systems that disagree</p>
+              <p class="where">backend/api vs apps/web/src/app/api · @criation/types vs apps/web/src/types/store.ts</p>
+              <p class="what">The Express service is unreachable dead weight; the shared packages (<span class="mono">api</span>, <span class="mono">ui</span>, <span class="mono">validation</span>, <span class="mono">types</span>) are used by admin and mobile but not by the app that matters. Prices are paise in one and rupees in the other.</p>
+              <p class="fix"><b>Fix</b>Decide on one home for business logic — Next route handlers, or the Express service — and delete or fully adopt the other. Standardise on integer minor units (paise) everywhere and format at the edge.</p>
+            </div>
+          </div>
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip m">M-4</span></div>
+            <div>
+              <p class="title">No inventory control, and order numbers collide</p>
+              <p class="where">StoreContext → createOrder</p>
+              <p class="what">Stock is never decremented, so the same item can be sold indefinitely. Order IDs are <code>CR-</code> plus four random digits — roughly a 1-in-10,000 collision per order, and the number is generated on the client where two customers can produce the same one.</p>
+              <p class="fix"><b>Fix</b>Server-generated order numbers from a sequence or ULID, and an atomic stock decrement in the same transaction as order creation.</p>
+            </div>
+          </div>
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip m">M-5</span></div>
+            <div>
+              <p class="title">GST is a flat 5% and the invoice is not a compliant tax invoice</p>
+              <p class="where">StoreContext → cartTax · lib/invoice/generateInvoice.ts</p>
+              <p class="what">Every product is taxed at 5% regardless of HSN classification, and the generated document calls itself a Tax Invoice while carrying no GSTIN, no HSN/SAC codes, no place-of-supply and no IGST-versus-CGST/SGST split. For an Indian marketplace selling across states, that is a compliance problem, not a formatting one.</p>
+              <p class="fix"><b>Fix</b>Per-product HSN and GST rate on the product model, place-of-supply logic driving CGST+SGST versus IGST, seller GSTIN on the invoice, and sequential invoice numbering per financial year.</p>
+            </div>
+          </div>
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip m">M-6</span></div>
+            <div>
+              <p class="title">The AI concierge and AI tools are keyword matching</p>
+              <p class="where">apps/web/src/components/ai/AIChatWidget.tsx · app/ai-tools/page.tsx</p>
+              <p class="what">The widget is a chain of <code>if (q.includes("gift"))</code> branches behind a 700&nbsp;ms fake typing delay. That is fine as a demo, but it is presented to users as an AI assistant, and it will fail on the first real question.</p>
+              <p class="fix"><b>Fix</b>Either wire it to a real model through a server route (never expose an API key to the browser), with a strict system prompt, rate limiting and a cost cap — or relabel it as a guided help menu.</p>
+            </div>
+          </div>
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip m">M-7</span></div>
+            <div>
+              <p class="title">Legal pages claim compliance the platform does not have</p>
+              <p class="where">apps/web/src/app/legal/[slug]/page.tsx</p>
+              <p class="what">The privacy policy states that transactions run through "256-bit SSL encrypted, PCI-DSS Level 1 compliant payment gateways". There is no gateway. Checkout repeats the claim. Publishing that to real customers is a consumer-protection exposure independent of the technical one.</p>
+              <p class="fix"><b>Fix</b>Rewrite the legal pages against what the platform actually does once payments are live, and have them reviewed. Add the disclosures Indian e-commerce rules require: seller identity, grievance officer, return window, shipping timelines.</p>
+            </div>
+          </div>
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip m">M-8</span></div>
+            <div>
+              <p class="title">No transactional email or SMS</p>
+              <p class="where">whole app</p>
+              <p class="what">Nothing is ever sent to a customer: no order confirmation, no shipping notification, no OTP, no password reset, no invoice delivery. Notifications exist only as in-app toasts stored in the browser.</p>
+              <p class="fix"><b>Fix</b>Add a transactional provider (Resend, SES or Postmark; MSG91 for Indian SMS) driven by server-side order events, with templates and delivery logging.</p>
+            </div>
+          </div>
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip m">M-9</span></div>
+            <div>
+              <p class="title">Product and order pages are client-only — no SSR, no SEO surface</p>
+              <p class="where">app/products/[id]/page.tsx · app/orders/[id]/page.tsx · no sitemap or robots</p>
+              <p class="what">Every product page is <code>"use client"</code> reading from context, so there is no per-product <code>&lt;title&gt;</code>, description, canonical URL, Open Graph image or Product structured data — and no <span class="mono">sitemap.ts</span> or <span class="mono">robots.ts</span>. For a storefront that lives on search traffic, this is the difference between existing and not existing on Google.</p>
+              <p class="fix"><b>Fix</b>Convert product and category pages to server components with <code>generateMetadata()</code>, add JSON-LD Product/Offer/BreadcrumbList, and add <span class="mono">sitemap.ts</span>, <span class="mono">robots.ts</span> and a web manifest.</p>
+            </div>
+          </div>
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip m">M-10</span></div>
+            <div>
+              <p class="title">Currency conversion uses hardcoded rates</p>
+              <p class="where">StoreContext → CURRENCY_RATES</p>
+              <p class="what">USD, EUR and GBP prices are computed from constants written into the bundle. They were wrong the day after they were written, and a customer can be charged a different amount than they were shown.</p>
+              <p class="fix"><b>Fix</b>Either sell in INR only and display a clearly-labelled indicative conversion, or fetch daily rates server-side and freeze the rate onto the order at capture time.</p>
+            </div>
+          </div>
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip m">M-11</span></div>
+            <div>
+              <p class="title">Silent database fallbacks hide outages</p>
+              <p class="where">lib/db/mongodb.ts and every route's catch block</p>
+              <p class="what">A failed connection logs a warning and the route returns mock catalog data with <code>success: true</code>. Monitoring sees healthy 200s while the database is down, and customers browse a fictional catalog. The connect handler also logs part of the connection string.</p>
+              <p class="fix"><b>Fix</b>Fail loudly — return 503, emit a structured error to Sentry, and add a real health check. Remove the URI from the log line.</p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <section id="low">
+        <h2 class="sec">Low &amp; housekeeping</h2>
+
+        <div class="findings">
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip l">L-1</span></div>
+            <div>
+              <p class="title">The entire storefront is uncommitted</p>
+              <p class="where">git status on branch CT04</p>
+              <p class="what">Thirty-plus untracked directories including <span class="mono">src/app/api</span>, <span class="mono">src/components</span>, <span class="mono">src/context</span> and <span class="mono">src/lib</span>. All of this work exists on one machine only.</p>
+              <p class="fix"><b>Fix</b>Commit in reviewable slices today — but scrub <span class="mono">apps/web/.env.example</span> of the real secret first, since it is not covered by the ignore rules.</p>
+            </div>
+          </div>
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip l">L-2</span></div>
+            <div>
+              <p class="title">A folder of personal WhatsApp photos sits at the repository root</p>
+              <p class="where">pp/ — 20+ .jpeg files</p>
+              <p class="what">Untracked and unreferenced. If these are product photography they belong in <span class="mono">public/products</span> with sensible names and licensing; otherwise they should not be near the repo.</p>
+              <p class="fix"><b>Fix</b>Move or delete, and add <code>pp/</code> to <span class="mono">.gitignore</span> if it is a scratch folder.</p>
+            </div>
+          </div>
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip l">L-3</span></div>
+            <div>
+              <p class="title">The .gitignore is duplicated line-for-line</p>
+              <p class="where">.gitignore</p>
+              <p class="what">Two full copies of the same rule set concatenated. Harmless, but it makes the file hard to reason about and invites a rule being fixed in one half only.</p>
+              <p class="fix"><b>Fix</b>Deduplicate into one section-per-concern file.</p>
+            </div>
+          </div>
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip l">L-4</span></div>
+            <div>
+              <p class="title">No error boundaries, and one loading state for the whole app</p>
+              <p class="where">apps/web/src/app — only loading.tsx at root, no error.tsx</p>
+              <p class="what">A thrown error in any route renders the default Next.js error screen. Route-level loading states are missing, so navigation between heavy pages shows nothing.</p>
+              <p class="fix"><b>Fix</b>Add <span class="mono">error.tsx</span> and <span class="mono">not-found.tsx</span> at the root and per segment, wired to your error reporter.</p>
+            </div>
+          </div>
+
+          <div class="finding">
+            <div class="chipwrap"><span class="chip l">L-5</span></div>
+            <div>
+              <p class="title">Accessibility has not been reviewed</p>
+              <p class="where">storefront components</p>
+              <p class="what">Payment method tiles and several controls are <code>&lt;div onClick&gt;</code> rather than buttons or radios, so they are unreachable by keyboard and unannounced to screen readers. There is no skip link and focus order through the checkout steps has not been checked.</p>
+              <p class="fix"><b>Fix</b>Semantic elements for anything interactive, a keyboard pass over the checkout, and axe in CI.</p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <section id="missing">
+        <h2 class="sec">What is missing before real users can use it</h2>
+        <p>
+          Separate from defects: these are capabilities the product implies but does not have. This
+          is the feature backlog rather than the bug list.
+        </p>
+
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr><th>Area</th><th>State today</th><th>Needed</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Accounts</td><td>Register + login only</td><td>Email/phone verification, password reset, session list, delete-my-account, 2FA (the UI already advertises it)</td></tr>
+              <tr><td>Catalog</td><td>Fixture array in the bundle</td><td>Server-owned catalog with search, facets, pagination, variants, media pipeline</td></tr>
+              <tr><td>Cart</td><td>localStorage</td><td>Server cart keyed to session, merged on login, price re-validated at checkout</td></tr>
+              <tr><td>Checkout</td><td>Simulated</td><td>Server-computed totals, address validation, pincode serviceability, real payment</td></tr>
+              <tr><td>Orders</td><td>Browser only</td><td>Persisted orders, state machine, cancellation and return workflows with approval</td></tr>
+              <tr><td>Fulfilment</td><td>Fake BlueDart numbers</td><td>Courier integration (Shiprocket/Delhivery), label generation, real tracking webhooks</td></tr>
+              <tr><td>Payments</td><td>None</td><td>Gateway, webhooks, refunds, settlement reconciliation, payout to sellers</td></tr>
+              <tr><td>Seller / supplier</td><td>UI shells writing to localStorage</td><td>Onboarding with KYC, listing approval queue, commission model, payout ledger</td></tr>
+              <tr><td>Admin</td><td>Client-gated dashboard</td><td>Real RBAC, audit log, order and refund management, dispute handling</td></tr>
+              <tr><td>Subscriptions</td><td>Mock plan picker</td><td>Recurring mandate (UPI Autopay / e-NACH), dunning, cancellation, proration</td></tr>
+              <tr><td>Support</td><td>Form that does nothing</td><td>Ticketing or an inbox integration, SLA, grievance officer contact per Indian rules</td></tr>
+              <tr><td>Observability</td><td>console.log</td><td>Sentry, structured logs, uptime checks, business dashboards</td></tr>
+              <tr><td>Data</td><td>Single Mongo instance</td><td>Managed cluster, automated backups, tested restore, retention and deletion policy</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="payments">
+        <h2 class="sec">Getting to real payments</h2>
+        <p>
+          The product is priced in INR with UPI, cards, netbanking, wallet and COD — so the natural
+          choice is an Indian gateway: <strong>Razorpay</strong> or <strong>Cashfree</strong> (both
+          cover UPI intent and collect, cards with RBI-compliant tokenisation, netbanking, COD
+          reconciliation and marketplace-style split settlements). Add Stripe only if you sell
+          outside India. The gateway matters less than the shape of the flow.
+        </p>
+
+        <h3>The flow that has to replace the current one</h3>
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr><th>Step</th><th>Where it runs</th><th>What happens</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Cart priced</td><td>Server</td><td>Client sends product IDs + quantities only. Server looks up prices, applies coupons it validated itself, computes GST and shipping, returns the total.</td></tr>
+              <tr><td>Order drafted</td><td>Server</td><td>An order row is written with status <code>pending</code> and the server-computed amount. It is never <code>paid</code> at this point.</td></tr>
+              <tr><td>Gateway order created</td><td>Server</td><td>Call the gateway with that amount and your order ID as the receipt. Keys stay server-side; only the returned order token reaches the browser.</td></tr>
+              <tr><td>Customer pays</td><td>Gateway's UI</td><td>Their hosted checkout or SDK collects the card or UPI. Your card form is deleted — no PAN or CVV ever touches your code.</td></tr>
+              <tr><td>Webhook confirms</td><td>Server</td><td>The gateway calls your webhook. Verify the HMAC signature, check the amount matches your order, then and only then mark it paid. Make it idempotent — webhooks retry.</td></tr>
+              <tr><td>Fulfilment starts</td><td>Server</td><td>Decrement stock in the same transaction, send the confirmation email, generate the invoice, create the shipment.</td></tr>
+              <tr><td>Reconcile</td><td>Server, daily</td><td>Compare gateway settlements against your order ledger and alert on any mismatch.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4>Rules that are not optional</h4>
+        <ul class="plain">
+          <li><strong>Never trust a client-reported payment.</strong> The browser's success callback is a UI hint. Only a signature-verified webhook (or a server-side status fetch) may change an order to paid.</li>
+          <li><strong>Never store card data.</strong> Delete the card fields from checkout entirely. Using a hosted gateway UI keeps you in PCI SAQ-A, the lightest tier. RBI rules also prohibit merchants storing card numbers — tokenisation is the gateway's job.</li>
+          <li><strong>Amounts are integers in paise, server-side, always.</strong> Never take a total from the request body.</li>
+          <li><strong>Idempotency keys on every charge and refund</strong>, so a retried request cannot double-charge.</li>
+          <li><strong>COD needs its own path</strong>: no capture at checkout, a confirmation call or OTP to suppress fake orders, and remittance reconciliation from the courier.</li>
+          <li><strong>Subscriptions need a mandate</strong>, not a stored card — UPI Autopay or e-NACH, with dunning and clear cancellation.</li>
+          <li><strong>Refunds are a first-class flow</strong>: partial and full, tied to the return workflow, reflected in the invoice and the ledger.</li>
+        </ul>
+
+        <h4>What you need before you can go live commercially</h4>
+        <ul class="plain">
+          <li>A registered business entity, PAN, GSTIN and a current account for gateway KYC.</li>
+          <li>Published policies the gateway will check: refund, shipping, terms, privacy, contact — the current placeholder copy will not pass, and it currently claims certifications you do not hold.</li>
+          <li>A live domain on HTTPS with the storefront actually working, since gateways review the site during onboarding.</li>
+          <li>A grievance officer and contact details published, per Indian e-commerce rules.</li>
+        </ul>
+      </section>
+
+      <section id="hardening">
+        <h2 class="sec">Security hardening checklist</h2>
+        <p>
+          Work top-left to bottom-right. The first group is what stops the current attacks; the rest
+          is what keeps it stopped.
+        </p>
+
+        <div class="checks">
+          <div class="check-group">
+            <h5>Authentication</h5>
+            <ul>
+              <li>Reject <code>role</code> from any client input</li>
+              <li>Fail boot on a missing <code>JWT_SECRET</code>; rotate the leaked one</li>
+              <li>Delete every DB-failure auth fallback</li>
+              <li>Short-lived access token + rotating refresh token</li>
+              <li>Server-side session revocation on logout and password change</li>
+              <li>Password minimum length + breach check</li>
+              <li>Email verification and a real reset flow</li>
+              <li>Lockout and exponential backoff on failed logins</li>
+              <li>bcrypt cost 12, or move to argon2id</li>
+            </ul>
+          </div>
+
+          <div class="check-group">
+            <h5>Authorization</h5>
+            <ul>
+              <li><span class="mono">middleware.ts</span> guarding <code>/admin</code>, <code>/seller</code>, <code>/supplier</code></li>
+              <li><code>requireRole()</code> inside every privileged handler</li>
+              <li>Ownership checks — a user may only read their own orders</li>
+              <li>Delete the hardcoded master-key mechanism</li>
+              <li>Audit log for every admin action</li>
+            </ul>
+          </div>
+
+          <div class="check-group">
+            <h5>Input &amp; data</h5>
+            <ul>
+              <li>Zod validation on every route (schemas already exist)</li>
+              <li>Explicit field allowlists — no <code>{...body}</code> into Mongoose</li>
+              <li>Escape user input used in <code>$regex</code> queries</li>
+              <li>Money and tax computed server-side only</li>
+              <li>Cap request body size</li>
+              <li>Sanitise anything rendered as HTML in invoices</li>
+            </ul>
+          </div>
+
+          <div class="check-group">
+            <h5>Transport &amp; headers</h5>
+            <ul>
+              <li>Nonce-based Content-Security-Policy</li>
+              <li>HSTS with preload</li>
+              <li><code>frame-ancestors 'none'</code></li>
+              <li><code>X-Content-Type-Options: nosniff</code></li>
+              <li><code>Referrer-Policy: strict-origin-when-cross-origin</code></li>
+              <li>Restrictive <code>Permissions-Policy</code></li>
+              <li>HTTPS everywhere, HTTP redirected</li>
+            </ul>
+          </div>
+
+          <div class="check-group">
+            <h5>Abuse &amp; availability</h5>
+            <ul>
+              <li>Rate limits per IP and per account</li>
+              <li>Bot check on register, login and reset</li>
+              <li>WAF / DDoS protection (Cloudflare or host-native)</li>
+              <li>Upload quotas and virus scanning</li>
+              <li>Timeouts and circuit breakers on outbound calls</li>
+              <li>CSRF tokens on any non-JSON mutating endpoint</li>
+            </ul>
+          </div>
+
+          <div class="check-group">
+            <h5>Secrets &amp; supply chain</h5>
+            <ul>
+              <li>Secrets only in the host's secret manager</li>
+              <li>Separate credentials per environment</li>
+              <li>Secret scanning in pre-commit and CI</li>
+              <li><code>npm audit</code> blocking in CI</li>
+              <li>Dependabot or Renovate enabled</li>
+              <li>Lockfile committed and CI installs with <code>npm ci</code></li>
+            </ul>
+          </div>
+
+          <div class="check-group">
+            <h5>Data protection</h5>
+            <ul>
+              <li>MongoDB Atlas with IP allowlist and TLS, never a public instance</li>
+              <li>Encryption at rest, automated backups, a tested restore</li>
+              <li>Least-privilege database user</li>
+              <li>PII minimisation and a retention policy</li>
+              <li>Export and deletion on request (DPDP Act)</li>
+              <li>No PII, tokens or card data in logs</li>
+            </ul>
+          </div>
+
+          <div class="check-group">
+            <h5>Operations</h5>
+            <ul>
+              <li>Sentry for errors, structured request logging</li>
+              <li>Uptime and payment-success-rate alerting</li>
+              <li>Staging environment mirroring production</li>
+              <li>Documented incident response and rollback</li>
+              <li>Penetration test before public launch</li>
+              <li>A published security contact / disclosure policy</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="roadmap">
+        <h2 class="sec">The route to launch</h2>
+        <p>
+          Five phases, in dependency order. The estimates assume one or two developers and are
+          calendar time, not effort. Phase 0 is the only one with a hard deadline: it must be done
+          before this code is reachable from the internet at all.
+        </p>
+
+        <div class="phase">
+          <div class="phase-head">
+            <span class="phase-num">PHASE 0</span>
+            <h3 class="phase-title" style="margin:0">Close the open doors</h3>
+            <span class="phase-meta">1–2 days · blocking</span>
+          </div>
+          <ul>
+            <li><strong>Delete <code>/api/seed</code></strong> and move seeding to a script.</li>
+            <li><strong>Strip <code>role</code></strong> from the login and register request bodies.</li>
+            <li><strong>Remove every DB-failure fallback</strong> from the auth, product and order routes.</li>
+            <li><strong>Require <code>JWT_SECRET</code></strong> at boot, rotate it, and replace the value in both <span class="mono">.env.example</span> files with a placeholder.</li>
+            <li><strong>Lock down the upload route</strong>: auth, MIME allowlist, size cap — or disable it until Phase 3.</li>
+            <li><strong>Narrow <code>images.remotePatterns</code></strong> and add the security headers block.</li>
+            <li><strong>Add <span class="mono">middleware.ts</span></strong> so privileged routes are not reachable without a verified role.</li>
+            <li>Scrub the secret from <span class="mono">apps/web/.env.example</span>, then commit the storefront.</li>
+          </ul>
+        </div>
+
+        <div class="phase">
+          <div class="phase-head">
+            <span class="phase-num">PHASE 1</span>
+            <h3 class="phase-title" style="margin:0">Move the truth to the server</h3>
+            <span class="phase-meta">3–5 weeks</span>
+          </div>
+          <ul>
+            <li>Pick one backend — Next route handlers or the Express service — and delete the other.</li>
+            <li>Real sessions: refresh-token rotation, server-side revocation, <code>/api/auth/me</code> actually used on load.</li>
+            <li>Password reset, email verification, rate limiting, lockout.</li>
+            <li>Server-owned catalog, cart, coupons and pricing. The browser stops being the source of truth.</li>
+            <li>Persisted orders with a proper state machine and ownership checks.</li>
+            <li>Standardise on paise across the monorepo; retire the duplicate type system.</li>
+            <li>Vitest on pricing and auth, Playwright on the purchase journey, GitHub Actions running lint, typecheck, test, build, audit.</li>
+          </ul>
+        </div>
+
+        <div class="phase">
+          <div class="phase-head">
+            <span class="phase-num">PHASE 2</span>
+            <h3 class="phase-title" style="margin:0">Payments</h3>
+            <span class="phase-meta">2–3 weeks after Phase 1</span>
+          </div>
+          <ul>
+            <li>Gateway account and KYC (start early — approval takes days, sometimes weeks).</li>
+            <li>Server-side order creation, hosted checkout, signature-verified idempotent webhooks.</li>
+            <li>Delete the card form. Wire UPI, cards, netbanking and COD through the gateway.</li>
+            <li>Refunds tied to the return flow; a wallet backed by a real ledger, not a number in state.</li>
+            <li>Compliant GST invoices with HSN, GSTIN and place-of-supply logic.</li>
+            <li>Daily settlement reconciliation and payment-failure alerting.</li>
+          </ul>
+        </div>
+
+        <div class="phase">
+          <div class="phase-head">
+            <span class="phase-num">PHASE 3</span>
+            <h3 class="phase-title" style="margin:0">Make it operable</h3>
+            <span class="phase-meta">3–4 weeks, overlaps Phase 2</span>
+          </div>
+          <ul>
+            <li>Transactional email and SMS for every order event.</li>
+            <li>Object storage for uploads with presigned URLs and a CDN.</li>
+            <li>Inventory with atomic decrements and oversell protection.</li>
+            <li>Courier integration for real labels and tracking.</li>
+            <li>Admin console backed by the API: orders, refunds, listing approval, audit log.</li>
+            <li>Seller and supplier onboarding with KYC, commissions and payouts.</li>
+            <li>Sentry, structured logging, uptime and business dashboards.</li>
+          </ul>
+        </div>
+
+        <div class="phase">
+          <div class="phase-head">
+            <span class="phase-num">PHASE 4</span>
+            <h3 class="phase-title" style="margin:0">Harden and open the doors</h3>
+            <span class="phase-meta">2–3 weeks</span>
+          </div>
+          <ul>
+            <li>Work the hardening checklist end to end.</li>
+            <li>WAF, DDoS protection, bot management in front of the origin.</li>
+            <li>Managed database with backups and a restore you have actually tested.</li>
+            <li>SEO surface: server-rendered product pages, structured data, sitemap, robots.</li>
+            <li>Accessibility and performance passes; Core Web Vitals in CI.</li>
+            <li>Legal review of policies rewritten against what the platform actually does.</li>
+            <li>External penetration test, then a staged launch.</li>
+          </ul>
+        </div>
+
+        <h3>If you do only three things this week</h3>
+        <ul class="plain">
+          <li><strong>Phase 0 in full.</strong> Every item is under an hour and each one closes a door that is currently open.</li>
+          <li><strong>Commit the work</strong> — with the secret scrubbed first. It exists on one machine.</li>
+          <li><strong>Start the payment gateway KYC.</strong> It is the longest-lead item on the whole list and it does not depend on any code being finished.</li>
+        </ul>
+      </section>
+
+      <footer class="end">
+        <span>Criation Readiness Audit</span>
+        <span>·</span>
+        <span>Branch CT04 · commit 6ae6feb</span>
+        <span>·</span>
+        <span>10 workspaces · 14,471 lines reviewed in apps/web</span>
+        <span>·</span>
+        <span>23 August 2026</span>
+      </footer>
+
+    </main>
+  </div>
+</div>

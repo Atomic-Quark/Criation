@@ -1,10 +1,22 @@
 {
-  "extends": ["expo/tsconfig.base", "@criation/config/tsconfig/react-native.json"],
+  "extends": [
+    "expo/tsconfig.base",
+    "@criation/config/tsconfig/react-native.json"
+  ],
   "compilerOptions": {
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
-  "exclude": ["node_modules", "dist", ".expo"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    ".expo"
+  ]
 }
