@@ -9,6 +9,7 @@
     "start": "next start --port 3000",
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit",
+    "seed:admin": "npx tsx scripts/seed-admin.ts",
     "clean": "node -e \"require('node:fs').rmSync('.next',{recursive:true,force:true})\""
   },
   "dependencies": {
@@ -18,6 +19,13 @@
     "@criation/ui": "*",
     "@criation/utils": "*",
     "@criation/validation": "*",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "bcryptjs": "^3.0.3",
+    "jose": "^6.2.10",
+    "jsonwebtoken": "^9.0.3",
+    "lucide-react": "^1.33.0",
+    "mongoose": "^9.9.3",
     "next": "16.3.0",
     "react": "19.2.3",
     "react-dom": "19.2.3"
