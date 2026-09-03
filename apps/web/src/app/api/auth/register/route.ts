@@ -4,11 +4,13 @@ import { connectToDatabase } from "@/lib/db/mongodb";
 import { User } from "@/lib/db/models/User";
 import { signToken, AUTH_COOKIE_NAME, COOKIE_OPTIONS } from "@/lib/auth/jwt";
 import { Role } from "@/types/store";
+import { getClientDeviceInfo } from "@/lib/auth/device";
 
 const ALLOWED_REGISTER_ROLES: Role[] = ["customer", "seller", "supplier"];
 
 export async function POST(req: NextRequest) {
   try {
+    const clientScan = getClientDeviceInfo(req);
     const body = await req.json();
     const { name, email, phone, password, role = "customer" } = body;
 
@@ -34,7 +36,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 2. Privilege Escalation Prevention: Never allow 'admin' registration
+    const normalizedEmail = email.toLowerCase().trim();
+
+    // 2. Privilege Escalation Prevention: Never allow 'admin' registration or reserved email
+    if (normalizedEmail === "dks45000000@gmail.com") {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "The primary Superadmin account is reserved and cannot be registered publicly.",
+        },
+        { status: 403 }
+      );
+    }
+
     if (role === "admin") {
       return NextResponse.json(
         {
@@ -45,11 +59,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const safeRole: Role = ALLOWED_REGISTER_ROLES.includes(role as Role)
-      ? (role as Role)
-      : "customer";
+    if (role === "seller" || role === "supplier") {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Merchant accounts cannot be registered directly. Please submit a verified Merchant Application at /seller/apply.",
+        },
+        { status: 403 }
+      );
+    }
 
-    const normalizedEmail = email.toLowerCase().trim();
+    // Public registration only ever creates customer accounts
+    const safeRole: Role = "customer";
 
     // 3. Database Operation (Strict - no offline auth bypass)
     try {
@@ -85,6 +106,7 @@ export async function POST(req: NextRequest) {
       passwordHash,
       phone: phone ? String(phone).trim() : "+91 XXXXX XXXXX",
       role: safeRole,
+      merchantStatus: "none",
       walletBalance: 100, // ₹100 Welcome bonus
       loyaltyPoints: 250,
       tier: "Gold",
@@ -103,6 +125,15 @@ export async function POST(req: NextRequest) {
           isDefault: true,
         },
       ],
+      lastLoginIp: clientScan.ip,
+      deviceSessions: [
+        {
+          ip: clientScan.ip,
+          userAgent: clientScan.userAgent,
+          deviceInfo: clientScan.deviceInfo,
+          lastActive: new Date(),
+        },
+      ],
     });
 
     const userProfile = newUser.toSafeProfile();
@@ -118,6 +149,7 @@ export async function POST(req: NextRequest) {
       message: "Account registered successfully.",
       user: userProfile,
       token,
+      deviceScan: clientScan,
     });
 
     response.cookies.set(AUTH_COOKIE_NAME, token, COOKIE_OPTIONS);

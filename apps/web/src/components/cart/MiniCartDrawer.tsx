@@ -40,7 +40,7 @@ export function MiniCartDrawer() {
   const [couponCode, setCouponCode] = useState("");
   const [couponMsg, setCouponMsg] = useState<{ text: string; error: boolean } | null>(null);
 
-  // Close on Escape key (UX-16 Resolution)
+  // Close on Escape key
   React.useEffect(() => {
     if (!isMiniCartOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -80,17 +80,17 @@ export function MiniCartDrawer() {
       />
 
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md bg-white dark:bg-zinc-900 shadow-2xl flex flex-col border-l border-zinc-200 dark:border-zinc-800 animate-in slide-in-from-right duration-300">
+        <div className="w-screen max-w-md bg-[#faf7f2] dark:bg-[#161311] shadow-2xl flex flex-col border-l border-[#e8e0d4] dark:border-[#352f29] animate-in slide-in-from-right duration-300">
           {/* Header */}
-          <div className="p-4 sm:p-5 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between bg-zinc-50/50 dark:bg-zinc-900/50">
+          <div className="p-4 sm:p-5 border-b border-[#e8e0d4] dark:border-[#352f29] flex items-center justify-between bg-white dark:bg-[#1c1916]">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400">
+              <div className="p-2 rounded-xl bg-[#fdf2ef] dark:bg-[#281b17] text-[#c25e3f] dark:text-[#d97757]">
                 <ShoppingBag className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="font-bold text-zinc-900 dark:text-zinc-100 text-lg flex items-center gap-2">
+                <h2 className="font-serif font-bold text-[#241f1c] dark:text-[#f4ece1] text-lg flex items-center gap-2">
                   Shopping Bag
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300">
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[#f0eae0] dark:bg-[#26211d] text-[#756c63] dark:text-[#a59b90]">
                     {cart.reduce((sum, i) => sum + i.quantity, 0)} items
                   </span>
                 </h2>
@@ -99,7 +99,7 @@ export function MiniCartDrawer() {
 
             <button
               onClick={() => setIsMiniCartOpen(false)}
-              className="p-2 rounded-xl text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              className="p-2 rounded-xl text-[#8a8075] hover:text-[#241f1c] dark:hover:text-[#f4ece1] hover:bg-[#f0eae0] dark:hover:bg-[#231f1b] transition-colors cursor-pointer"
               aria-label="Close cart"
             >
               <X className="w-5 h-5" />
@@ -108,25 +108,23 @@ export function MiniCartDrawer() {
 
           {/* Free Shipping Meter */}
           {cart.length > 0 && (
-            <div className="p-4 bg-indigo-50/70 dark:bg-indigo-950/30 border-b border-indigo-100 dark:border-indigo-900/40">
+            <div className="p-4 bg-[#f0f4f1] dark:bg-[#18231b] border-b border-[#d8e4db] dark:border-[#2b3c2f]">
               <div className="flex items-center justify-between text-xs mb-1.5 font-medium">
-                <span className="flex items-center gap-1.5 text-indigo-900 dark:text-indigo-200">
-                  <Truck className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                <span className="flex items-center gap-1.5 text-[#241f1c] dark:text-[#f4ece1]">
+                  <Truck className="w-4 h-4 text-[#56745f] dark:text-[#779b81]" />
                   {remainingForFreeShipping === 0 ? (
-                    <span className="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                    <span className="font-bold text-[#56745f] dark:text-[#779b81] flex items-center gap-1">
                       <CheckCircle className="w-3.5 h-3.5" /> FREE Express Shipping Unlocked!
                     </span>
                   ) : (
-                    <>Add <span className="font-bold text-indigo-700 dark:text-indigo-300">{formatPrice(remainingForFreeShipping)}</span> more for FREE Delivery</>
+                    <>Add <span className="font-bold text-[#c25e3f] dark:text-[#d97757]">{formatPrice(remainingForFreeShipping)}</span> more for FREE Delivery</>
                   )}
                 </span>
-                <span className="text-indigo-600 dark:text-indigo-400 font-bold">{freeShippingProgress}%</span>
+                <span className="text-[#56745f] dark:text-[#779b81] font-bold">{freeShippingProgress}%</span>
               </div>
-              <div className="w-full h-2 bg-indigo-100 dark:bg-indigo-900/60 rounded-full overflow-hidden">
+              <div className="w-full h-2 bg-[#e2ede4] dark:bg-[#223126] rounded-full overflow-hidden">
                 <div
-                  className={`h-full transition-all duration-500 rounded-full ${
-                    freeShippingProgress === 100 ? "bg-emerald-500" : "bg-indigo-600"
-                  }`}
+                  className="h-full transition-all duration-500 rounded-full bg-[#56745f] dark:bg-[#779b81]"
                   style={{ width: `${freeShippingProgress}%` }}
                 />
               </div>
@@ -134,31 +132,32 @@ export function MiniCartDrawer() {
           )}
 
           {/* Item List */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3.5">
             {cart.length === 0 ? (
               <div className="py-16 text-center">
-                <div className="w-16 h-16 rounded-3xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mx-auto mb-4 text-zinc-400">
+                <div className="w-16 h-16 rounded-3xl bg-white dark:bg-[#1c1916] border border-[#e8e0d4] dark:border-[#352f29] flex items-center justify-center mx-auto mb-4 text-[#8a8075]">
                   <ShoppingBag className="w-8 h-8 stroke-[1.5]" />
                 </div>
-                <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">Your bag is empty</h3>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-[240px] mx-auto leading-relaxed">
+                <h3 className="font-serif text-base font-bold text-[#241f1c] dark:text-[#f4ece1]">Your bag is empty</h3>
+                <p className="text-xs text-[#756c63] dark:text-[#a59b90] mt-1 max-w-[240px] mx-auto leading-relaxed">
                   Explore our handcrafted artisan jewelry, festive diyas, and trending dropship gadgets.
                 </p>
                 <Link
                   href="/products"
                   onClick={() => setIsMiniCartOpen(false)}
-                  className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold shadow-md hover:opacity-90 transition-opacity"
+                  className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#c25e3f] hover:bg-[#a84d31] text-white text-xs font-semibold shadow-md shadow-[#c25e3f]/20 transition-all"
                 >
-                  Start Shopping <ArrowRight className="w-4 h-4" />
+                  <span>Start Shopping</span>
+                  <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
             ) : (
               cart.map((item) => (
                 <div
                   key={item.id}
-                  className="flex gap-3.5 p-3 rounded-2xl bg-zinc-50/70 dark:bg-zinc-800/40 border border-zinc-100 dark:border-zinc-800/80 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
+                  className="flex gap-3.5 p-3.5 rounded-2xl bg-white dark:bg-[#1c1916] border border-[#e8e0d4] dark:border-[#352f29] shadow-2xs hover:border-[#c25e3f]/40 dark:hover:border-[#d97757]/40 transition-colors"
                 >
-                  <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-zinc-200 dark:bg-zinc-800 shrink-0 border border-zinc-200/60 dark:border-zinc-700/60">
+                  <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-[#faf7f2] dark:bg-[#24201c] shrink-0 border border-[#e8e0d4] dark:border-[#352f29]">
                     <Image
                       src={item.image}
                       alt={item.name}
@@ -174,13 +173,13 @@ export function MiniCartDrawer() {
                         <Link
                           href={`/products/${item.productId}`}
                           onClick={() => setIsMiniCartOpen(false)}
-                          className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 hover:text-indigo-600 dark:hover:text-indigo-400 line-clamp-2"
+                          className="text-xs font-semibold text-[#241f1c] dark:text-[#f4ece1] hover:text-[#c25e3f] dark:hover:text-[#d97757] line-clamp-2"
                         >
                           {item.name}
                         </Link>
                         <button
                           onClick={() => removeFromCart(item.id)}
-                          className="text-zinc-400 hover:text-rose-500 p-1 transition-colors shrink-0"
+                          className="text-[#8a8075] hover:text-[#b75258] p-1 transition-colors shrink-0 cursor-pointer"
                           title="Remove item"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -188,40 +187,33 @@ export function MiniCartDrawer() {
                       </div>
 
                       {item.variantName && (
-                        <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
+                        <p className="text-[11px] text-[#756c63] dark:text-[#a59b90] mt-0.5">
                           Variant: {item.variantName}
                         </p>
                       )}
                     </div>
 
                     <div className="flex items-center justify-between gap-2 mt-2">
-                      <div className="flex items-baseline gap-1.5">
-                        <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
-                          {formatPrice(item.price)}
-                        </span>
-                        {item.compareAtPrice && item.compareAtPrice > item.price && (
-                          <span className="text-[11px] line-through text-zinc-400">
-                            {formatPrice(item.compareAtPrice)}
-                          </span>
-                        )}
-                      </div>
+                      <span className="font-serif text-sm font-bold text-[#241f1c] dark:text-[#f4ece1]">
+                        {formatPrice(item.price)}
+                      </span>
 
                       {/* Quantity Controller */}
-                      <div className="flex items-center gap-1 bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-700 p-0.5 shadow-xs">
+                      <div className="flex items-center rounded-xl border border-[#e8e0d4] dark:border-[#352f29] bg-[#faf7f2] dark:bg-[#24201c]">
                         <button
                           onClick={() => updateCartQuantity(item.id, item.quantity - 1)}
-                          className="p-1 rounded text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-                          aria-label="Decrease quantity"
+                          className="p-1.5 text-[#756c63] hover:text-[#241f1c] dark:hover:text-[#f4ece1] transition-colors cursor-pointer"
+                          title="Decrease quantity"
                         >
                           <Minus className="w-3 h-3" />
                         </button>
-                        <span className="px-2 text-xs font-bold text-zinc-900 dark:text-zinc-100 min-w-[20px] text-center">
+                        <span className="px-2 text-xs font-semibold text-[#241f1c] dark:text-[#f4ece1] min-w-[20px] text-center">
                           {item.quantity}
                         </span>
                         <button
                           onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
-                          className="p-1 rounded text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-                          aria-label="Increase quantity"
+                          className="p-1.5 text-[#756c63] hover:text-[#241f1c] dark:hover:text-[#f4ece1] transition-colors cursor-pointer"
+                          title="Increase quantity"
                         >
                           <Plus className="w-3 h-3" />
                         </button>
@@ -233,26 +225,22 @@ export function MiniCartDrawer() {
             )}
           </div>
 
-          {/* Coupon & Summary Footer */}
+          {/* Cart Footer Summary */}
           {cart.length > 0 && (
-            <div className="p-4 sm:p-5 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-900/80 space-y-3.5">
-              {/* Promo Code Input */}
+            <div className="p-4 sm:p-5 bg-white dark:bg-[#1c1916] border-t border-[#e8e0d4] dark:border-[#352f29] space-y-3.5">
+              {/* Coupon Form */}
               {appliedCoupon ? (
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs">
-                  <div className="flex items-center gap-2">
-                    <Tag className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                    <div>
-                      <span className="font-bold text-emerald-800 dark:text-emerald-200">
-                        {appliedCoupon.code}
-                      </span>
-                      <span className="text-emerald-600 dark:text-emerald-400 ml-1.5">
-                        (-{formatPrice(cartDiscount)})
-                      </span>
-                    </div>
+                <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#f0f4f1] dark:bg-[#18231b] border border-[#d8e4db] dark:border-[#2b3c2f] text-xs">
+                  <div className="flex items-center gap-1.5 text-[#56745f] dark:text-[#779b81] font-semibold">
+                    <Tag className="w-4 h-4" />
+                    <span>
+                      {appliedCoupon.code} applied (-{appliedCoupon.discountValue}
+                      {appliedCoupon.discountType === "percentage" ? "%" : "₹"})
+                    </span>
                   </div>
                   <button
                     onClick={removeCoupon}
-                    className="text-xs font-semibold text-rose-600 dark:text-rose-400 hover:underline"
+                    className="text-[#b75258] font-bold hover:underline cursor-pointer"
                   >
                     Remove
                   </button>
@@ -268,12 +256,12 @@ export function MiniCartDrawer() {
                         setCouponCode(e.target.value);
                         setCouponMsg(null);
                       }}
-                      className="w-full px-3 py-2 text-xs rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 uppercase tracking-wider focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-3 py-2 text-xs rounded-xl bg-[#faf7f2] dark:bg-[#24201c] border border-[#e8e0d4] dark:border-[#352f29] text-[#241f1c] dark:text-[#f4ece1] placeholder:text-[#9c9184] uppercase tracking-wider focus:outline-hidden focus:border-[#c25e3f]"
                     />
                   </div>
                   <button
                     type="submit"
-                    className="px-3.5 py-2 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-xs font-bold hover:opacity-90 transition-opacity"
+                    className="px-4 py-2 rounded-xl bg-[#241f1c] dark:bg-[#f4ece1] text-[#faf7f2] dark:text-[#141210] text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer"
                   >
                     Apply
                   </button>
@@ -281,30 +269,30 @@ export function MiniCartDrawer() {
               )}
 
               {couponMsg && (
-                <p className={`text-[11px] ${couponMsg.error ? "text-rose-500" : "text-emerald-600"}`}>
+                <p className={`text-[11px] ${couponMsg.error ? "text-[#b75258]" : "text-[#56745f]"}`}>
                   {couponMsg.text}
                 </p>
               )}
 
               {/* Price Breakdown */}
-              <div className="space-y-1.5 text-xs text-zinc-600 dark:text-zinc-400 pt-1">
+              <div className="space-y-1.5 text-xs text-[#756c63] dark:text-[#a59b90] pt-1">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                  <span className="font-semibold text-[#241f1c] dark:text-[#f4ece1]">
                     {formatPrice(cartSubtotal)}
                   </span>
                 </div>
                 {cartDiscount > 0 && (
-                  <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-medium">
+                  <div className="flex justify-between text-[#56745f] dark:text-[#779b81] font-medium">
                     <span>Coupon Discount</span>
                     <span>-{formatPrice(cartDiscount)}</span>
                   </div>
                 )}
                 <div className="flex justify-between">
                   <span>Estimated Shipping</span>
-                  <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                  <span className="font-semibold text-[#241f1c] dark:text-[#f4ece1]">
                     {cartShippingFee === 0 ? (
-                      <span className="text-emerald-600 font-bold">FREE</span>
+                      <span className="text-[#56745f] dark:text-[#779b81] font-bold">FREE</span>
                     ) : (
                       formatPrice(cartShippingFee)
                     )}
@@ -312,13 +300,13 @@ export function MiniCartDrawer() {
                 </div>
                 <div className="flex justify-between">
                   <span>Taxes (5% GST)</span>
-                  <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                  <span className="font-semibold text-[#241f1c] dark:text-[#f4ece1]">
                     {formatPrice(cartTax)}
                   </span>
                 </div>
-                <div className="flex justify-between text-sm font-bold text-zinc-900 dark:text-zinc-100 pt-2 border-t border-zinc-200 dark:border-zinc-700">
+                <div className="flex justify-between text-sm font-bold text-[#241f1c] dark:text-[#f4ece1] pt-2 border-t border-[#e8e0d4] dark:border-[#352f29]">
                   <span>Estimated Total</span>
-                  <span className="text-base text-indigo-600 dark:text-indigo-400">
+                  <span className="font-serif text-base text-[#c25e3f] dark:text-[#d97757]">
                     {formatPrice(cartTotal)}
                   </span>
                 </div>
@@ -329,16 +317,17 @@ export function MiniCartDrawer() {
                 <Link
                   href="/cart"
                   onClick={() => setIsMiniCartOpen(false)}
-                  className="w-full py-3 rounded-xl border border-zinc-300 dark:border-zinc-700 text-center text-xs font-bold text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                  className="w-full py-3 rounded-2xl border border-[#e8e0d4] dark:border-[#352f29] text-center text-xs font-semibold text-[#241f1c] dark:text-[#f4ece1] hover:bg-[#faf7f2] dark:hover:bg-[#231f1b] transition-colors"
                 >
                   View Full Cart
                 </Link>
                 <Link
                   href="/checkout"
                   onClick={() => setIsMiniCartOpen(false)}
-                  className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-center text-xs font-bold shadow-lg shadow-indigo-500/25 hover:opacity-95 transition-all flex items-center justify-center gap-1.5"
+                  className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#c25e3f] via-[#b85336] to-[#a84d31] hover:from-[#b85336] hover:to-[#9e3f26] text-white text-center text-xs font-semibold shadow-md shadow-[#c25e3f]/25 transition-all flex items-center justify-center gap-1.5"
                 >
-                  Checkout Now <ArrowRight className="w-3.5 h-3.5" />
+                  <span>Checkout Now</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
             </div>

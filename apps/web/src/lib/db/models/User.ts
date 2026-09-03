@@ -23,6 +23,8 @@ export interface IUserDocument extends Document {
   phone: string;
   avatar?: string;
   role: Role;
+  merchantStatus?: "none" | "pending" | "verified" | "rejected";
+  merchantApplicationId?: mongoose.Types.ObjectId;
   walletBalance: number;
   loyaltyPoints: number;
   tier: "Silver" | "Gold" | "Diamond VIP";
@@ -36,6 +38,15 @@ export interface IUserDocument extends Document {
     whatsapp: boolean;
     push: boolean;
   };
+  cart?: any[];
+  wishlist?: any[];
+  lastLoginIp?: string;
+  deviceSessions?: Array<{
+    ip: string;
+    userAgent: string;
+    deviceInfo: string;
+    lastActive: Date;
+  }>;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -67,6 +78,8 @@ const UserSchema = new Schema<IUserDocument>(
     phone: { type: String, required: true, trim: true },
     avatar: { type: String, default: "/products/craft-item-01.jpeg" },
     role: { type: String, enum: ["customer", "seller", "supplier", "admin"], default: "customer", index: true },
+    merchantStatus: { type: String, enum: ["none", "pending", "verified", "rejected"], default: "none", index: true },
+    merchantApplicationId: { type: Schema.Types.ObjectId, ref: "MerchantApplication" },
     walletBalance: { type: Number, default: 100 }, // ₹100 Welcome Bonus
     loyaltyPoints: { type: Number, default: 250 },
     tier: { type: String, enum: ["Silver", "Gold", "Diamond VIP"], default: "Gold" },
@@ -79,6 +92,20 @@ const UserSchema = new Schema<IUserDocument>(
       sms: { type: Boolean, default: true },
       whatsapp: { type: Boolean, default: true },
       push: { type: Boolean, default: true },
+    },
+    cart: { type: Array, default: [] },
+    wishlist: { type: Array, default: [] },
+    lastLoginIp: { type: String, default: "127.0.0.1" },
+    deviceSessions: {
+      type: [
+        {
+          ip: { type: String, default: "127.0.0.1" },
+          userAgent: { type: String, default: "Standard Browser" },
+          deviceInfo: { type: String, default: "Windows PC" },
+          lastActive: { type: Date, default: Date.now },
+        },
+      ],
+      default: [],
     },
   },
   {
@@ -101,16 +128,26 @@ UserSchema.methods.toSafeProfile = function () {
     phone: this.phone,
     avatar: this.avatar,
     role: this.role,
+    merchantStatus: this.merchantStatus || "none",
+    merchantApplicationId: this.merchantApplicationId?.toString(),
     walletBalance: this.walletBalance,
     loyaltyPoints: this.loyaltyPoints,
     tier: this.tier,
     addresses: this.addresses || [],
     twoFactorEnabled: this.twoFactorEnabled,
     isAdminVerified: this.isAdminVerified,
+    cart: this.cart || [],
+    wishlist: this.wishlist || [],
+    lastLoginIp: this.lastLoginIp || "127.0.0.1",
+    deviceSessions: this.deviceSessions || [],
     joinedDate: this.createdAt ? new Date(this.createdAt).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "August 2026",
     notificationPreferences: this.notificationPreferences,
   };
 };
+
+if (process.env.NODE_ENV !== "production") {
+  delete (mongoose.models as any).User;
+}
 
 export const User: Model<IUserDocument> =
   mongoose.models.User || mongoose.model<IUserDocument>("User", UserSchema);

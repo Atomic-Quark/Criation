@@ -3,24 +3,49 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #fafafa;
-  --foreground: #09090b;
+  --background: #faf7f2;
+  --foreground: #241f1c;
+  --card: #ffffff;
+  --card-foreground: #241f1c;
+  --border: #e8e0d4;
+  --muted: #f4efe6;
+  --muted-foreground: #756c63;
+  --accent-terracotta: #c25e3f;
+  --accent-sage: #56745f;
+  --accent-brass: #b58334;
+  --accent-rose: #b75258;
   color-scheme: light;
 }
 
 .dark {
-  --background: #09090b;
-  --foreground: #f4f4f5;
+  --background: #141210;
+  --foreground: #f4ece1;
+  --card: #1c1916;
+  --card-foreground: #f4ece1;
+  --border: #352f29;
+  --muted: #231f1b;
+  --muted-foreground: #a59b90;
+  --accent-terracotta: #d97757;
+  --accent-sage: #779b81;
+  --accent-brass: #d49f48;
+  --accent-rose: #cf6e74;
   color-scheme: dark;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-vintage-border: var(--border);
+  --color-vintage-muted: var(--muted);
+  --color-vintage-terracotta: var(--accent-terracotta);
+  --color-vintage-sage: var(--accent-sage);
+  --color-vintage-brass: var(--accent-brass);
 }
 
 html {
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.3s cubic-bezier(0.25, 1, 0.5, 1), color 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 html.dark {
@@ -30,39 +55,28 @@ html.dark {
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  font-family: var(--font-sans, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+  transition: background-color 0.3s cubic-bezier(0.25, 1, 0.5, 1), color 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.font-serif, .font-vintage {
+  font-family: var(--font-serif, Georgia, Cambria, 'Times New Roman', Times, serif);
+}
+
+::selection {
+  background-color: #c25e3f;
+  color: #ffffff;
+}
+
+.dark ::selection {
+  background-color: #d97757;
+  color: #141210;
 }
 
 /* ---------------------------------------------------------------------------
-   Scrollbars are hidden everywhere — the page, the sidebar nav, the cart
-   drawer, dropdowns and every other scroll pane. Scrolling itself is
-   untouched: wheel, trackpad, keyboard, touch and drag all still work, and
-   the panes remain focusable so keyboard users can still reach the content.
+   Modular Style Imports
    --------------------------------------------------------------------------- */
-* {
-  scrollbar-width: none;      /* Firefox */
-  -ms-overflow-style: none;   /* legacy Edge / IE */
-}
-
-*::-webkit-scrollbar {        /* Chrome, Edge, Safari, Opera */
-  width: 0;
-  height: 0;
-  background: transparent;
-}
-
-*::-webkit-scrollbar-thumb,
-*::-webkit-scrollbar-track,
-*::-webkit-scrollbar-corner {
-  background: transparent;
-}
-
-/* Firefox needs the shorthand on the scrolling elements themselves too. */
-html,
-body {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
+@import "../styles/scrollbars.css";
 
 /* Tailwind emits a `.scrollbar-thin` utility, and a class selector outranks
    the `*` rule above — so panes carrying it (the sidebar nav) would still show
@@ -72,7 +86,7 @@ body {
   scrollbar-width: none;
 }
 
-/* Animations */
+/* Animations & Tactile Micro-Interactions */
 @keyframes shimmer {
   0% {
     background-position: -200% 0;
@@ -87,7 +101,7 @@ body {
     transform: translateY(0px) rotate(0deg);
   }
   50% {
-    transform: translateY(-8px) rotate(3deg);
+    transform: translateY(-8px) rotate(2deg);
   }
 }
 
@@ -102,36 +116,36 @@ body {
 
 @keyframes pulseGlow {
   0%, 100% {
-    opacity: 0.4;
+    opacity: 0.35;
     transform: scale(1);
   }
   50% {
-    opacity: 0.8;
-    transform: scale(1.08);
+    opacity: 0.7;
+    transform: scale(1.05);
   }
 }
 
 .animate-shimmer {
-  background: linear-gradient(90deg, #f4f4f5 25%, #e4e4e7 50%, #f4f4f5 75%);
+  background: linear-gradient(90deg, #f4efe6 25%, #e8e0d4 50%, #f4efe6 75%);
   background-size: 200% 100%;
-  animation: shimmer 1.8s infinite linear;
+  animation: shimmer 2s infinite linear;
 }
 
 .dark .animate-shimmer {
-  background: linear-gradient(90deg, #18181b 25%, #27272a 50%, #18181b 75%);
+  background: linear-gradient(90deg, #1c1916 25%, #2c2621 50%, #1c1916 75%);
   background-size: 200% 100%;
 }
 
 .animate-float {
-  animation: float 3s ease-in-out infinite;
+  animation: float 4s ease-in-out infinite;
 }
 
 .animate-spin-slow {
-  animation: spinSlow 8s linear infinite;
+  animation: spinSlow 12s linear infinite;
 }
 
 .animate-pulse-glow {
-  animation: pulseGlow 2.5s ease-in-out infinite;
+  animation: pulseGlow 3s ease-in-out infinite;
 }
 
 /* Reduced Motion (UX-8 Resolution) */
@@ -147,14 +161,14 @@ body {
 }
 
 /* ==========================================================================
-   THEME TOGGLE SWITCH: Instant CSS-Driven Day ↔ Night Simulation
+   THEME TOGGLE SWITCH: Day ↔ Night Vintage Transition
    ========================================================================== */
 .theme-toggle-btn {
-  background: linear-gradient(135deg, #1e6ecb 0%, #3a8ff0 50%, #5dade2 100%);
+  background: linear-gradient(135deg, #d49f48 0%, #c25e3f 100%);
   transition: background 0.5s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s ease;
 }
 html.dark .theme-toggle-btn {
-  background: linear-gradient(135deg, #0d121f 0%, #172033 50%, #202b44 100%) !important;
+  background: linear-gradient(135deg, #1f1b17 0%, #2e2822 50%, #3d352d 100%) !important;
 }
 
 .theme-toggle-aura {
@@ -165,51 +179,61 @@ html.dark .theme-toggle-aura {
   left: calc(100% - 36px) !important;
 }
 
-.theme-toggle-stars {
-  opacity: 0;
-  transform: translateY(-16px);
-  transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-}
-html.dark .theme-toggle-stars {
-  opacity: 1 !important;
-  transform: translateY(0) !important;
+@import "../styles/theme.css";
+@import "../styles/animations.css";
+
+/* ==========================================================================
+   AESTHETIC PRODUCT IMAGE COLOR GRADING & STUDIO LIGHTING
+   Pleasing to the eye, fancy studio contrast, warmth, and lighting sheen
+   ========================================================================== */
+.product-image-aesthetic {
+  filter: brightness(1.03) contrast(1.06) saturate(1.07);
+  transition: filter 0.6s cubic-bezier(0.25, 1, 0.5, 1), transform 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+  will-change: filter, transform;
 }
 
-.theme-toggle-clouds {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-}
-html.dark .theme-toggle-clouds {
-  opacity: 0 !important;
-  transform: translateY(16px) !important;
+.group:hover .product-image-aesthetic,
+.product-image-aesthetic:hover {
+  filter: brightness(1.06) contrast(1.09) saturate(1.10);
 }
 
-.theme-toggle-orb {
-  transform: translateX(0px) rotate(0deg);
-  background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 50%, #fef08a 100%);
-  box-shadow: inset 1px 2px 2px rgba(255, 255, 255, 0.9), inset -1px -2px 2px rgba(180, 83, 9, 0.5), 0 2px 6px rgba(245, 158, 11, 0.5);
-  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease, box-shadow 0.4s ease;
-}
-html.dark .theme-toggle-orb {
-  transform: translateX(38px) rotate(180deg) !important;
-  background: linear-gradient(135deg, #94a3b8 0%, #cbd5e1 50%, #f1f5f9 100%) !important;
-  box-shadow: inset 1px 2px 2px rgba(255, 255, 255, 0.7), inset -1px -2px 2px rgba(0, 0, 0, 0.5), 0 2px 5px rgba(0, 0, 0, 0.4) !important;
+/* Studio stage background for product photography */
+.product-stage-backdrop {
+  background: radial-gradient(circle at 50% 35%, #ffffff 0%, #fbf7f0 55%, #f2eae0 100%);
+  position: relative;
 }
 
-.theme-toggle-craters {
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-html.dark .theme-toggle-craters {
-  opacity: 1 !important;
+.dark .product-stage-backdrop {
+  background: radial-gradient(circle at 50% 35%, #25201b 0%, #1c1815 60%, #14110f 100%);
+  position: relative;
 }
 
-.theme-toggle-sunflare {
-  opacity: 1;
-  transition: opacity 0.3s ease;
-}
-html.dark .theme-toggle-sunflare {
-  opacity: 0 !important;
+/* Luxury studio lighting vignette & top-down specular sheen */
+.product-sheen-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 40%, rgba(20, 18, 16, 0.06) 80%, rgba(20, 18, 16, 0.20) 100%);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+  border-radius: inherit;
+  z-index: 2;
+  transition: opacity 0.5s ease;
 }
 
+.dark .product-sheen-overlay {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 40%, rgba(10, 8, 7, 0.22) 75%, rgba(10, 8, 7, 0.50) 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+/* Subtle studio warm rim light on card hover */
+.product-card-luxury {
+  transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.product-card-luxury:hover {
+  box-shadow: 0 20px 35px -10px rgba(194, 94, 63, 0.12), 0 8px 16px -6px rgba(181, 131, 52, 0.08);
+}
+
+.dark .product-card-luxury:hover {
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6), 0 0 25px -4px rgba(217, 119, 87, 0.12);
+}

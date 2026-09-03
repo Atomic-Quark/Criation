@@ -112,6 +112,48 @@ export default function AccountPage() {
     });
   };
 
+  // Security Gate: Defense-in-depth authorization for Account Management
+  if (!user.isAuthenticated || user.email === "guest@criation.example") {
+    return (
+      <div className="max-w-md mx-auto px-4 py-16 sm:py-24 space-y-6">
+        <div className="text-center space-y-2">
+          <div className="w-16 h-16 rounded-3xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 mx-auto shadow-sm">
+            <User className="w-8 h-8" />
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-zinc-950 dark:text-white tracking-tight">
+            Sign In Required
+          </h1>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            Sign in to access your personal profile, wallet balance, saved addresses, and security settings.
+          </p>
+        </div>
+
+        <div className="bg-white dark:bg-zinc-900 p-6 sm:p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-xl space-y-4">
+          <Link
+            href="/auth/login?redirect=/account"
+            className="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md shadow-indigo-600/25 transition-all flex items-center justify-center gap-2"
+          >
+            Sign In to Your Account
+          </Link>
+
+          <Link
+            href="/auth/register"
+            className="w-full py-3 rounded-2xl bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 font-bold text-xs transition-all flex items-center justify-center gap-2"
+          >
+            Create New Account
+          </Link>
+
+          <Link
+            href="/"
+            className="block text-center text-xs font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 pt-2"
+          >
+            ← Return to Storefront
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6">
       {/* Breadcrumb Navigation */}
