@@ -49,33 +49,36 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  const isSellerApplyRoute = pathname.startsWith("/seller/apply") || pathname.startsWith("/seller/register");
+
   // 3. Role-Based Access Control (RBAC)
   if (isAdminRoute) {
-    if (session.role !== "admin") {
+    // SECURITY: Superadmin is strictly isolated to dks45000000@gmail.com
+    if (session.role !== "admin" || session.email !== "dks45000000@gmail.com") {
       if (pathname.startsWith("/api/")) {
         return NextResponse.json(
-          { success: false, error: "Forbidden: Superadmin access required." },
+          { success: false, error: "Forbidden: Superadmin access strictly restricted." },
           { status: 403 }
         );
       }
-      // Non-admin user attempting to access /admin -> redirect to homepage with forbidden status
       const homeUrl = new URL("/", req.url);
       homeUrl.searchParams.set("error", "access_denied");
       return NextResponse.redirect(homeUrl);
     }
   }
 
-  if (isSellerRoute) {
-    if (session.role !== "seller" && session.role !== "admin") {
+  // Seller operations hub requires verified seller role (or superadmin). Seller apply route is open to all logged in users.
+  if (isSellerRoute && !isSellerApplyRoute) {
+    const isSuperadmin = session.role === "admin" && session.email === "dks45000000@gmail.com";
+    if (session.role !== "seller" && !isSuperadmin) {
       if (pathname.startsWith("/api/")) {
         return NextResponse.json(
-          { success: false, error: "Forbidden: Merchant Hub access required." },
+          { success: false, error: "Forbidden: Verified Merchant Hub access required." },
           { status: 403 }
         );
       }
-      const homeUrl = new URL("/", req.url);
-      homeUrl.searchParams.set("error", "seller_required");
-      return NextResponse.redirect(homeUrl);
+      const applyUrl = new URL("/seller/apply", req.url);
+      return NextResponse.redirect(applyUrl);
     }
   }
 

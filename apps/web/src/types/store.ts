@@ -244,6 +244,8 @@ export interface UserProfile {
   phone: string;
   avatar: string;
   role: Role;
+  merchantStatus?: 'none' | 'pending' | 'verified' | 'rejected';
+  merchantApplicationId?: string;
   walletBalance: number;
   loyaltyPoints: number;
   tier: 'Silver' | 'Gold' | 'Diamond VIP';

@@ -1,0 +1,56 @@
+/* ---------------------------------------------------------------------------
+   Theme Switcher & Day/Night Celestial Toggle Styles
+   --------------------------------------------------------------------------- */
+
+.theme-toggle-stars {
+  opacity: 0;
+  transform: translateY(-16px);
+  transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html.dark .theme-toggle-stars {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+.theme-toggle-clouds {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html.dark .theme-toggle-clouds {
+  opacity: 0 !important;
+  transform: translateY(16px) !important;
+}
+
+.theme-toggle-orb {
+  transform: translateX(0px) rotate(0deg);
+  background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 50%, #fef08a 100%);
+  box-shadow: inset 1px 2px 2px rgba(255, 255, 255, 0.9), inset -1px -2px 2px rgba(180, 83, 9, 0.5), 0 2px 6px rgba(245, 158, 11, 0.5);
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease, box-shadow 0.4s ease;
+}
+
+html.dark .theme-toggle-orb {
+  transform: translateX(38px) rotate(180deg) !important;
+  background: linear-gradient(135deg, #94a3b8 0%, #cbd5e1 50%, #f1f5f9 100%) !important;
+  box-shadow: inset 1px 2px 2px rgba(255, 255, 255, 0.7), inset -1px -2px 2px rgba(0, 0, 0, 0.5), 0 2px 5px rgba(0, 0, 0, 0.4) !important;
+}
+
+.theme-toggle-craters {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+html.dark .theme-toggle-craters {
+  opacity: 1 !important;
+}
+
+.theme-toggle-sunflare {
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+html.dark .theme-toggle-sunflare {
+  opacity: 0 !important;
+}

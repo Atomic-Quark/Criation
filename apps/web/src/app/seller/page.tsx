@@ -31,6 +31,7 @@ export default function SellerPortalPage() {
     updateOrderStatus,
     formatPrice,
     showToast,
+    user,
   } = useStore();
 
   const [activeTab, setActiveTab] = useState<"products" | "orders" | "payouts">("products");
@@ -98,6 +99,53 @@ export default function SellerPortalPage() {
     showToast("Withdrawal Requested 🏦", `Transfer of ${formatPrice(withdrawAmount)} initiated to your verified bank account.`, "success");
     setIsWithdrawModalOpen(false);
   };
+
+  // Security Gate: Defense-in-depth authorization for Merchant Portal
+  if (!user.isAuthenticated || (user.role !== "seller" && user.role !== "admin")) {
+    return (
+      <div className="max-w-md mx-auto px-4 py-16 sm:py-24 space-y-6">
+        <div className="text-center space-y-2">
+          <div className="w-16 h-16 rounded-3xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 mx-auto shadow-sm">
+            <Store className="w-8 h-8" />
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-zinc-950 dark:text-white tracking-tight">
+            Merchant Access Required
+          </h1>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            This Merchant Hub is restricted strictly to verified artisan sellers and store managers.
+          </p>
+        </div>
+
+        <div className="bg-white dark:bg-zinc-900 p-6 sm:p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800 shadow-xl space-y-5">
+          <div className="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-900/50 flex items-start gap-2.5 text-xs text-amber-900 dark:text-amber-200">
+            <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+            <div>
+              <span className="font-bold">Merchant Account Required</span>
+              <p className="text-[11px] text-amber-800 dark:text-amber-300 mt-0.5">
+                Your current account ({user.name || "Guest"}) does not possess an approved seller profile.
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-3 pt-2">
+            <Link
+              href="/auth/login?redirect=/seller"
+              className="w-full py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md shadow-indigo-600/25 transition-all flex items-center justify-center gap-2"
+            >
+              Sign In with Merchant Account
+            </Link>
+
+            <Link
+              href="/"
+              className="block text-center text-xs font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 pt-1"
+            >
+              ← Return to Customer Storefront
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">

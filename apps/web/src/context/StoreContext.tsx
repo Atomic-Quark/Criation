@@ -153,22 +153,53 @@ interface StoreContextType {
   currency: CurrencyCode;
   setCurrency: (c: CurrencyCode) => void;
   formatPrice: (amountInInr: number) => string;
+
+  // Multi-Account Device Management (GitHub Style)
+  deviceAccounts: DeviceAccount[];
+  isAccountSignOutModalOpen: boolean;
+  openAccountSignOutModal: () => void;
+  closeAccountSignOutModal: () => void;
+  signOutAccount: (email: string) => Promise<void>;
+  signOutAllAccounts: () => Promise<void>;
+  switchAccount: (email: string) => Promise<void>;
+}
+
+export interface DeviceAccount {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string;
+  role: Role;
+  lastLoginIp: string;
+  deviceInfo: string;
+  lastActive: string;
+  isActive: boolean;
 }
 
 const StoreContext = createContext<StoreContextType | null>(null);
 
 const STORAGE_KEYS = {
   PRODUCTS: "criation_products_v2",
-  CART: "criation_cart_v1",
-  SAVED_FOR_LATER: "criation_saved_v1",
-  WISHLIST: "criation_wishlist_v1",
-  ORDERS: "criation_orders_v1",
-  NOTIFICATIONS: "criation_notifs_v1",
-  USER: "criation_user_v1",
-  WALLET_TX: "criation_wallet_v1",
-  SOURCING: "criation_sourcing_v1",
-  COUPON: "criation_coupon_v1",
-  CURRENCY: "criation_currency_v1",
+  CART: "criation_cart_v2",
+  SAVED_FOR_LATER: "criation_saved_v2",
+  WISHLIST: "criation_wishlist_v2",
+  ORDERS: "criation_orders_v2",
+  NOTIFICATIONS: "criation_notifs_v2",
+  USER: "criation_user_v2",
+  WALLET_TX: "criation_wallet_v2",
+  SOURCING: "criation_sourcing_v2",
+  COUPON: "criation_coupon_v2",
+  CURRENCY: "criation_currency_v2",
+  DEVICE_ACCOUNTS: "criation_device_accounts_v2",
+};
+
+// Generates an isolated storage key tied strictly to an individual account identity
+export const getUserStorageKey = (prefix: string, userProfile?: UserProfile | null): string => {
+  if (userProfile?.isAuthenticated && userProfile?.email) {
+    const safeEmail = userProfile.email.toLowerCase().trim().replace(/[^a-z0-9@._-]/g, "_");
+    return `${prefix}_usr_${safeEmail}`;
+  }
+  return `${prefix}_guest`;
 };
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
@@ -195,13 +226,105 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [isSidebarHovered, setIsSidebarHovered] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // Multi-Account Device Management (GitHub Style)
+  const [deviceAccounts, setDeviceAccounts] = useState<DeviceAccount[]>([]);
+  const [isAccountSignOutModalOpen, setIsAccountSignOutModalOpen] = useState(false);
+
+  const openAccountSignOutModal = () => setIsAccountSignOutModalOpen(true);
+  const closeAccountSignOutModal = () => setIsAccountSignOutModalOpen(false);
+
   const toggleSidebar = () => {
     setIsSidebarCollapsed((prev) => !prev);
+  };
+
+  // Helper to register / update account in this device's remembered accounts list
+  const registerDeviceAccount = (
+    accountUser: UserProfile,
+    scanInfo?: { ip?: string; deviceInfo?: string }
+  ) => {
+    if (!accountUser?.isAuthenticated || !accountUser?.email) return;
+
+    const email = accountUser.email.toLowerCase().trim();
+    const defaultIp = scanInfo?.ip || (accountUser as any).lastLoginIp || "127.0.0.1";
+    const defaultDevice = scanInfo?.deviceInfo || "Windows PC (Browser)";
+
+    setDeviceAccounts((prev) => {
+      const updated = prev.map((acc) => ({
+        ...acc,
+        isActive: acc.email.toLowerCase() === email,
+      }));
+
+      const existingIndex = updated.findIndex((acc) => acc.email.toLowerCase() === email);
+
+      const entry: DeviceAccount = {
+        id: accountUser.id,
+        name: accountUser.name,
+        email: accountUser.email,
+        avatar: accountUser.avatar || "/products/craft-item-01.jpeg",
+        role: accountUser.role,
+        lastLoginIp: defaultIp,
+        deviceInfo: defaultDevice,
+        lastActive: "Active now",
+        isActive: true,
+      };
+
+      let nextAccounts: DeviceAccount[];
+      if (existingIndex >= 0) {
+        updated[existingIndex] = entry;
+        nextAccounts = updated;
+      } else {
+        nextAccounts = [entry, ...updated];
+      }
+
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem(STORAGE_KEYS.DEVICE_ACCOUNTS, JSON.stringify(nextAccounts));
+        } catch (_) {}
+      }
+
+      return nextAccounts;
+    });
+  };
+
+  // Helper to load user-isolated cart and wishlist strictly for the active account
+  const loadUserCartAndWishlist = (targetUser: UserProfile) => {
+    try {
+      const cartKey = getUserStorageKey(STORAGE_KEYS.CART, targetUser);
+      const wishlistKey = getUserStorageKey(STORAGE_KEYS.WISHLIST, targetUser);
+      const savedCart = typeof window !== "undefined" ? localStorage.getItem(cartKey) : null;
+      const savedWishlist = typeof window !== "undefined" ? localStorage.getItem(wishlistKey) : null;
+
+      if (savedCart) {
+        setCart(JSON.parse(savedCart));
+      } else if (targetUser.isAuthenticated && (targetUser as any).cart && Array.isArray((targetUser as any).cart)) {
+        setCart((targetUser as any).cart);
+      } else {
+        setCart([]);
+      }
+
+      if (savedWishlist) {
+        setWishlist(JSON.parse(savedWishlist));
+      } else if (targetUser.isAuthenticated && (targetUser as any).wishlist && Array.isArray((targetUser as any).wishlist)) {
+        setWishlist((targetUser as any).wishlist);
+      } else {
+        setWishlist([]);
+      }
+    } catch (e) {
+      console.warn("[StoreContext] Storage load error:", e);
+    }
   };
 
   // Hydrate from localStorage on mount
   useEffect(() => {
     try {
+      // 1. Purge legacy global unpartitioned keys so no cross-account contamination persists
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.removeItem("criation_cart_v1");
+          localStorage.removeItem("criation_wishlist_v1");
+        } catch (_) {}
+      }
+
       const savedTheme = localStorage.getItem("criation_theme_v1");
       const isDomDark = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
       const isMediaDark = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -225,20 +348,39 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       const savedProducts = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
       if (savedProducts) setProducts(JSON.parse(savedProducts));
 
-      const savedCart = localStorage.getItem(STORAGE_KEYS.CART);
-      if (savedCart) setCart(JSON.parse(savedCart));
-
-      const savedWishlist = localStorage.getItem(STORAGE_KEYS.WISHLIST);
-      if (savedWishlist) setWishlist(JSON.parse(savedWishlist));
-
       const savedOrders = localStorage.getItem(STORAGE_KEYS.ORDERS);
       if (savedOrders) setOrders(JSON.parse(savedOrders));
 
       const savedNotifs = localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS);
       if (savedNotifs) setNotifications(JSON.parse(savedNotifs));
 
-      const savedUser = localStorage.getItem(STORAGE_KEYS.USER);
-      if (savedUser) setUser(JSON.parse(savedUser));
+      const savedDeviceAccounts = localStorage.getItem(STORAGE_KEYS.DEVICE_ACCOUNTS);
+      if (savedDeviceAccounts) {
+        try {
+          setDeviceAccounts(JSON.parse(savedDeviceAccounts));
+        } catch (_) {}
+      }
+
+      // Rehydrate real authenticated session from server cookie & load user-specific cart
+      fetch("/api/auth/me")
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data?.success && data.user) {
+            const authUser: UserProfile = { ...data.user, isAuthenticated: true };
+            setUser(authUser);
+            loadUserCartAndWishlist(authUser);
+            registerDeviceAccount(authUser);
+          } else {
+            const guestUser: UserProfile = { ...initialUserProfile, isAuthenticated: false };
+            setUser(guestUser);
+            loadUserCartAndWishlist(guestUser);
+          }
+        })
+        .catch(() => {
+          const guestUser: UserProfile = { ...initialUserProfile, isAuthenticated: false };
+          setUser(guestUser);
+          loadUserCartAndWishlist(guestUser);
+        });
 
       const savedWallet = localStorage.getItem(STORAGE_KEYS.WALLET_TX);
       if (savedWallet) setWalletTransactions(JSON.parse(savedWallet));
@@ -277,23 +419,38 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     setTheme(nextTheme);
   };
 
-  // Sync state to localStorage when changes occur (after hydration)
+  // Sync state to account-isolated localStorage when changes occur (after hydration)
   useEffect(() => {
     if (!isHydrated) return;
     try {
       localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
-      localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(cart));
-      localStorage.setItem(STORAGE_KEYS.WISHLIST, JSON.stringify(wishlist));
+
+      // Strictly isolated per-account storage keys
+      const cartKey = getUserStorageKey(STORAGE_KEYS.CART, user);
+      const wishlistKey = getUserStorageKey(STORAGE_KEYS.WISHLIST, user);
+      localStorage.setItem(cartKey, JSON.stringify(cart));
+      localStorage.setItem(wishlistKey, JSON.stringify(wishlist));
+
       localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(orders));
       localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(notifications));
       localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
       localStorage.setItem(STORAGE_KEYS.WALLET_TX, JSON.stringify(walletTransactions));
       localStorage.setItem(STORAGE_KEYS.SOURCING, JSON.stringify(sourcingRequests));
       localStorage.setItem(STORAGE_KEYS.CURRENCY, currency);
+      localStorage.setItem(STORAGE_KEYS.DEVICE_ACCOUNTS, JSON.stringify(deviceAccounts));
+
+      // If user is authenticated, also sync to MongoDB /api/cart
+      if (user?.isAuthenticated && user?.email) {
+        fetch("/api/cart", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cart }),
+        }).catch(() => {});
+      }
     } catch (e) {
       console.warn("Storage save failed:", e);
     }
-  }, [isHydrated, products, cart, wishlist, orders, notifications, user, walletTransactions, sourcingRequests, currency]);
+  }, [isHydrated, products, cart, wishlist, orders, notifications, user, walletTransactions, sourcingRequests, currency, deviceAccounts]);
 
   // Toast Helper
   const showToast = (title: string, message?: string, type: ToastItem["type"] = "success") => {
@@ -901,19 +1058,52 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     return true;
   };
 
-  const switchRole = (role: Role) => {
-    if (role === "admin" && !user.isAdminVerified) {
-      setUser((prev) => ({ ...prev, role: "admin", isAdminVerified: true, isAuthenticated: true }));
-      showToast("Superadmin Activated 🛡️", "Master administrative privileges unlocked.", "success");
-      return;
-    }
-    setUser((prev) => ({ ...prev, role }));
-    showToast("Role Switched", `Active view changed to ${role.toUpperCase()} mode.`, "info");
-  };
+  const SUPERADMIN_EMAIL = "dks45000000@gmail.com";
 
   // Authentication Methods
-  const isAuthenticated = Boolean(user.isAuthenticated !== false && user.email !== "guest@criation.example");
-  const isAdminAuthenticated = Boolean(user.isAdminVerified || user.role === "admin");
+  const isAuthenticated = Boolean(
+    user.isAuthenticated === true &&
+    user.id &&
+    user.id !== "usr_guest" &&
+    user.email !== "guest@criation.example"
+  );
+  const isAdminAuthenticated = Boolean(
+    isAuthenticated &&
+    user.role === "admin" &&
+    user.email?.toLowerCase().trim() === SUPERADMIN_EMAIL
+  );
+
+  const switchRole = (role: Role) => {
+    // SECURITY: Guests cannot switch roles
+    if (!isAuthenticated) {
+      showToast("Authentication Required 🔒", "Please sign in to access merchant or supplier workspaces.", "warning");
+      return;
+    }
+
+    const isSuperadmin =
+      user.role === "admin" && user.email?.toLowerCase().trim() === SUPERADMIN_EMAIL;
+
+    // SECURITY: Superadmin is strictly reserved for dks45000000@gmail.com
+    if (role === "admin" && !isSuperadmin) {
+      showToast("Access Denied 🔒", "Superadmin privileges are reserved exclusively for the primary platform administrator.", "error");
+      return;
+    }
+
+    // SECURITY: Merchant Hub requires verified seller approval
+    if (role === "seller" && user.role !== "seller" && !isSuperadmin) {
+      showToast("Merchant Verification Required 🔒", "Merchant Hub requires an approved seller account. Please apply at /seller/apply.", "warning");
+      return;
+    }
+
+    // SECURITY: Wholesale Supplier requires approved supplier account
+    if (role === "supplier" && user.role !== "supplier" && !isSuperadmin) {
+      showToast("Access Denied 🔒", "Wholesale Supplier requires an approved supplier account.", "error");
+      return;
+    }
+
+    setUser((prev) => ({ ...prev, role }));
+    showToast("Workspace View Updated", `Active view changed to ${role.toUpperCase()} mode.`, "info");
+  };
 
   const login = async (
     email: string,
@@ -929,14 +1119,17 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       const data = await res.json();
 
       if (data.success && data.user) {
-        setUser({ ...data.user, isAuthenticated: true });
-        showToast("Welcome Back! 👋", `Signed in successfully as ${data.user.name}.`, "success");
+        const loggedInUser: UserProfile = { ...data.user, isAuthenticated: true };
+        setUser(loggedInUser);
+        loadUserCartAndWishlist(loggedInUser);
+        registerDeviceAccount(loggedInUser, data.deviceScan);
+        const isSuperadmin = email.toLowerCase().trim() === SUPERADMIN_EMAIL;
         addNotification({
           title: "Login Successful",
           message: `Signed in via ${email}. Session verified.`,
           type: "system",
           priority: "normal",
-          link: "/account",
+          link: isSuperadmin ? "/admin" : "/",
         });
         return { success: true };
       } else {
@@ -967,7 +1160,15 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       const data = await res.json();
 
       if (data.success && data.user) {
-        setUser({ ...data.user, isAuthenticated: true });
+        const newUser: UserProfile = { ...data.user, isAuthenticated: true };
+        setUser(newUser);
+        setCart([]);
+        setWishlist([]);
+        if (typeof window !== "undefined") {
+          localStorage.setItem(getUserStorageKey(STORAGE_KEYS.CART, newUser), JSON.stringify([]));
+          localStorage.setItem(getUserStorageKey(STORAGE_KEYS.WISHLIST, newUser), JSON.stringify([]));
+        }
+        registerDeviceAccount(newUser, data.deviceScan);
         setWalletTransactions((prev) => [
           {
             id: `tx_${Date.now()}`,
@@ -986,7 +1187,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           message: "₹100 credited to your wallet for signing up.",
           type: "payment",
           priority: "high",
-          link: "/account",
+          link: "/",
         });
         return { success: true };
       } else {
@@ -1006,7 +1207,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     // Call logout API to clear HTTP cookies
     fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
 
-    setUser({
+    const guestUser: UserProfile = {
       id: "usr_guest",
       name: "Guest User",
       email: "guest@criation.example",
@@ -1028,8 +1229,71 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         whatsapp: false,
         push: false,
       },
-    });
+    };
+
+    setUser(guestUser);
+    loadUserCartAndWishlist(guestUser);
     showToast("Signed Out 👋", "You are now browsing in guest mode.", "info");
+  };
+
+  // Multi-Account Device Methods (GitHub Style)
+  const signOutAccount = async (targetEmail: string) => {
+    const normalized = targetEmail.toLowerCase().trim();
+    const remaining = deviceAccounts.filter((a) => a.email.toLowerCase() !== normalized);
+    setDeviceAccounts(remaining);
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(STORAGE_KEYS.DEVICE_ACCOUNTS, JSON.stringify(remaining));
+      } catch (_) {}
+    }
+
+    if (user.email.toLowerCase() === normalized) {
+      if (remaining.length > 0) {
+        await switchAccount(remaining[0].email);
+      } else {
+        logout();
+        closeAccountSignOutModal();
+      }
+    } else {
+      showToast("Account Removed", `${targetEmail} signed out from this device.`, "info");
+    }
+  };
+
+  const signOutAllAccounts = async () => {
+    setDeviceAccounts([]);
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem(STORAGE_KEYS.DEVICE_ACCOUNTS);
+      } catch (_) {}
+    }
+    logout();
+    closeAccountSignOutModal();
+    showToast("Signed Out All", "All accounts have been signed out from this device.", "info");
+  };
+
+  const switchAccount = async (targetEmail: string) => {
+    try {
+      const res = await fetch("/api/auth/switch-account", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: targetEmail }),
+      });
+      const data = await res.json();
+
+      if (data.success && data.user) {
+        const switchedUser: UserProfile = { ...data.user, isAuthenticated: true };
+        setUser(switchedUser);
+        loadUserCartAndWishlist(switchedUser);
+        registerDeviceAccount(switchedUser, data.deviceScan);
+        closeAccountSignOutModal();
+        showToast("Account Switched 👋", `Now active as ${switchedUser.name}.`, "success");
+      } else {
+        showToast("Switch Failed", data.error || "Could not switch to that account.", "error");
+      }
+    } catch (err) {
+      console.error("[StoreContext] switchAccount error:", err);
+      showToast("Switch Error", "Unable to switch account on this device.", "error");
+    }
   };
 
   // File Upload Helper
@@ -1163,6 +1427,15 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     currency,
     setCurrency,
     formatPrice,
+
+    // Multi-Account Device Management (GitHub Style)
+    deviceAccounts,
+    isAccountSignOutModalOpen,
+    openAccountSignOutModal,
+    closeAccountSignOutModal,
+    signOutAccount,
+    signOutAllAccounts,
+    switchAccount,
   };
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;

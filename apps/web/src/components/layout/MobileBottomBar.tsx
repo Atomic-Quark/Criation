@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useStore } from "@/context/StoreContext";
@@ -9,6 +9,11 @@ import { Home, Grid, TrendingUp, Heart, ShoppingBag, User } from "lucide-react";
 export function MobileBottomBar() {
   const pathname = usePathname();
   const { cart, wishlist, setIsMiniCartOpen } = useStore();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const totalCartCount = cart.reduce((sum, i) => sum + i.quantity, 0);
 
@@ -41,7 +46,7 @@ export function MobileBottomBar() {
               >
                 <div className="relative">
                   <Icon className="w-5 h-5" />
-                  {Boolean(item.badge && item.badge > 0) && (
+                  {Boolean(mounted && item.badge && item.badge > 0) && (
                     <span className="absolute -top-1.5 -right-2 w-4 h-4 rounded-full bg-amber-500 text-zinc-950 text-[9px] font-black flex items-center justify-center">
                       {item.badge}
                     </span>
@@ -64,7 +69,7 @@ export function MobileBottomBar() {
             >
               <div className="relative">
                 <Icon className="w-5 h-5" />
-                {Boolean(item.badge && item.badge > 0) && (
+                {Boolean(mounted && item.badge && item.badge > 0) && (
                   <span className="absolute -top-1.5 -right-2 w-4 h-4 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center">
                     {item.badge}
                   </span>
