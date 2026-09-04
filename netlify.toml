@@ -1,0 +1,30 @@
+# =============================================================================
+# Criation - Netlify Monorepo Deployment Configuration
+# =============================================================================
+# Ensures Netlify builds the full customer storefront (@criation/web) with
+# Homepage, User Login, Registration, Products, Deals, Cart, and Account.
+# =============================================================================
+
+[build]
+  # Base directory: Repository root (allows resolving all workspace dependencies)
+  base = "."
+  # Build command: Target the main customer website
+  command = "npm run build:web"
+  # Publish directory: Next.js output for apps/web
+  publish = "apps/web/.next"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[build.environment]
+  NODE_VERSION = "20.19.0"
+  NPM_FLAGS = "--legacy-peer-deps"
+
+# Headers for enhanced web security
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"

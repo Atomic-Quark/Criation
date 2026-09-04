@@ -252,6 +252,9 @@ export interface UserProfile {
   addresses: Address[];
   joinedDate: string;
   twoFactorEnabled: boolean;
+  countryCode?: string;
+  isPhoneVerified?: boolean;
+  isEmailVerified?: boolean;
   isAuthenticated?: boolean;
   isAdminVerified?: boolean;
   notificationPreferences: {

@@ -22,8 +22,16 @@ import {
   Mail,
   Home as HomeIcon,
   Building,
+  ShieldCheck,
 } from "lucide-react";
 import { Address } from "@/types/store";
+import { CountryCodeSelect } from "@/components/auth/CountryCodeSelect";
+import {
+  SUPPORTED_COUNTRIES,
+  CountryTelecomInfo,
+  validatePhoneNumber,
+} from "@/lib/auth/phoneValidation";
+import { validateEmail } from "@/lib/auth/emailValidation";
 
 export default function AccountPage() {
   const {
@@ -42,17 +50,33 @@ export default function AccountPage() {
   const [isTopUpOpen, setIsTopUpOpen] = useState(false);
   const [topUpAmount, setTopUpAmount] = useState(500);
 
+  // Helper to parse country from existing phone
+  const parsePhoneAndCountry = (rawPhone?: string, code?: string) => {
+    if (!rawPhone) return { country: SUPPORTED_COUNTRIES[0], national: "" };
+    const dial = code || SUPPORTED_COUNTRIES.find((c) => rawPhone.startsWith(c.dialCode))?.dialCode || "+91";
+    const country = SUPPORTED_COUNTRIES.find((c) => c.dialCode === dial) || SUPPORTED_COUNTRIES[0];
+    const national = rawPhone.startsWith(country.dialCode)
+      ? rawPhone.slice(country.dialCode.length).trim()
+      : rawPhone.replace(/\D/g, "");
+    return { country, national };
+  };
+
   // Edit Profile State with Live Sync
+  const initialParsed = parsePhoneAndCountry(user.phone, user.countryCode);
   const [nameInput, setNameInput] = useState(user.name || "");
   const [emailInput, setEmailInput] = useState(user.email || "");
-  const [phoneInput, setPhoneInput] = useState(user.phone || "");
+  const [selectedCountry, setSelectedCountry] = useState<CountryTelecomInfo>(initialParsed.country);
+  const [phoneInput, setPhoneInput] = useState(initialParsed.national);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
 
   // Sync inputs with context user upon hydration or update
   useEffect(() => {
     setNameInput(user.name || "");
     setEmailInput(user.email || "");
-    setPhoneInput(user.phone || "");
-  }, [user.name, user.email, user.phone]);
+    const parsed = parsePhoneAndCountry(user.phone, user.countryCode);
+    setSelectedCountry(parsed.country);
+    setPhoneInput(parsed.national);
+  }, [user.name, user.email, user.phone, user.countryCode]);
 
   // Add Address State
   const [isAddAddrOpen, setIsAddAddrOpen] = useState(false);
@@ -68,17 +92,35 @@ export default function AccountPage() {
     isDefault: false,
   });
 
-  const handleProfileSave = (e: React.FormEvent) => {
+  const handleProfileSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nameInput.trim()) {
-      showToast("Name Required", "Please enter your full name.", "error");
+    if (!nameInput.trim() || nameInput.trim().length < 2) {
+      showToast("Name Required", "Please enter a valid full name (at least 2 characters).", "error");
       return;
     }
-    updateProfile({
+
+    // Email validation
+    const emailCheck = validateEmail(emailInput.trim());
+    if (!emailCheck.isValid) {
+      showToast("Invalid Email", emailCheck.error || "Please enter a valid email address.", "error");
+      return;
+    }
+
+    // Phone validation
+    const phoneCheck = validatePhoneNumber(selectedCountry.dialCode, phoneInput.trim());
+    if (!phoneCheck.isValid) {
+      showToast("Invalid Phone Number", phoneCheck.error || "Please enter a valid mobile number.", "error");
+      return;
+    }
+
+    setIsSavingProfile(true);
+    const res = await updateProfile({
       name: nameInput.trim(),
-      email: emailInput.trim(),
-      phone: phoneInput.trim(),
+      dialCode: selectedCountry.dialCode,
+      phone: phoneCheck.nationalNumber,
+      email: emailCheck.normalizedEmail,
     });
+    setIsSavingProfile(false);
   };
 
   const handleTopUpSubmit = (e: React.FormEvent) => {
@@ -334,24 +376,49 @@ export default function AccountPage() {
             </div>
 
             <div>
-              <label className="font-bold text-zinc-700 dark:text-zinc-300 block mb-1">Phone Number</label>
-              <div className="relative">
+              <div className="flex items-center justify-between mb-1">
+                <label className="font-bold text-zinc-700 dark:text-zinc-300 block">
+                  Mobile Phone Number
+                </label>
+                {phoneInput && (
+                  <span className="text-[10px] font-semibold">
+                    {validatePhoneNumber(selectedCountry.dialCode, phoneInput).isValid ? (
+                      <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" /> Valid Number
+                      </span>
+                    ) : (
+                      <span className="text-amber-600 dark:text-amber-400">
+                        {phoneInput.replace(/\D/g, "").length} / {selectedCountry.minLength} digits
+                      </span>
+                    )}
+                  </span>
+                )}
+              </div>
+              <div className="flex rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all overflow-hidden">
+                <CountryCodeSelect
+                  value={selectedCountry.dialCode}
+                  onChange={(c) => setSelectedCountry(c)}
+                />
                 <input
                   type="tel"
-                  placeholder="+91 98765 43210"
+                  placeholder={selectedCountry.placeholder}
                   value={phoneInput}
-                  onChange={(e) => setPhoneInput(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 font-medium focus:bg-white dark:focus:bg-zinc-800 focus:ring-2 focus:ring-indigo-500"
+                  onChange={(e) => setPhoneInput(e.target.value.replace(/[^\d\s]/g, ""))}
+                  className="w-full px-3.5 py-2.5 bg-transparent text-zinc-900 dark:text-zinc-100 font-medium focus:outline-hidden font-mono text-xs"
                 />
               </div>
+              <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-1">
+                {selectedCountry.flag} {selectedCountry.name}: {selectedCountry.hint}
+              </p>
             </div>
 
             <div className="pt-2">
               <button
                 type="submit"
-                className="px-6 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-md hover:bg-indigo-500 transition-colors cursor-pointer"
+                disabled={isSavingProfile}
+                className="px-6 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-md hover:bg-indigo-500 disabled:opacity-50 transition-colors cursor-pointer flex items-center gap-2"
               >
-                Save Profile Changes
+                {isSavingProfile ? "Saving to Database..." : "Save Profile Changes"}
               </button>
             </div>
           </form>

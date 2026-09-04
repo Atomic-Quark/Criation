@@ -21,6 +21,9 @@ export interface IUserDocument extends Document {
   email: string;
   passwordHash: string;
   phone: string;
+  countryCode?: string;
+  isPhoneVerified?: boolean;
+  isEmailVerified?: boolean;
   avatar?: string;
   role: Role;
   merchantStatus?: "none" | "pending" | "verified" | "rejected";
@@ -75,7 +78,22 @@ const UserSchema = new Schema<IUserDocument>(
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true, index: true },
     passwordHash: { type: String, required: true },
-    phone: { type: String, required: true, trim: true },
+    phone: {
+      type: String,
+      required: [true, "Phone number is required"],
+      trim: true,
+      validate: {
+        validator: function (v: string) {
+          // Must match international E.164 format with 8 to 16 digits (e.g., +919876543210, +12025550143)
+          return /^\+[1-9]\d{7,14}$/.test(v);
+        },
+        message: (props: any) =>
+          `"${props.value}" is not a valid international phone number. Must start with country code (e.g. +91) and have valid digits.`,
+      },
+    },
+    countryCode: { type: String, default: "+91" },
+    isPhoneVerified: { type: Boolean, default: false },
+    isEmailVerified: { type: Boolean, default: false },
     avatar: { type: String, default: "/products/craft-item-01.jpeg" },
     role: { type: String, enum: ["customer", "seller", "supplier", "admin"], default: "customer", index: true },
     merchantStatus: { type: String, enum: ["none", "pending", "verified", "rejected"], default: "none", index: true },
@@ -126,6 +144,9 @@ UserSchema.methods.toSafeProfile = function () {
     name: this.name,
     email: this.email,
     phone: this.phone,
+    countryCode: this.countryCode || "+91",
+    isPhoneVerified: Boolean(this.isPhoneVerified),
+    isEmailVerified: Boolean(this.isEmailVerified),
     avatar: this.avatar,
     role: this.role,
     merchantStatus: this.merchantStatus || "none",

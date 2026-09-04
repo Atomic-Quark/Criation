@@ -29,6 +29,7 @@ import {
   Sun,
   Moon,
   Wallet,
+  ArrowRightLeft,
 } from "lucide-react";
 import { NotificationCenter } from "../notifications/NotificationCenter";
 import { Role } from "@/types/store";
@@ -47,7 +48,7 @@ export function Navbar() {
     user,
     isAuthenticated,
     logout,
-    openAccountSignOutModal,
+    openAccountSwitcherModal,
     deviceAccounts,
     switchRole,
     currency,
@@ -122,52 +123,63 @@ export function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-40 relative w-full bg-[#faf7f2]/92 dark:bg-[#141210]/92 backdrop-blur-md transition-colors border-b border-[#e8e0d4] dark:border-[#2e2822] shadow-xs">
+    <header className="relative w-full bg-[#faf7f2]/92 dark:bg-[#141210]/92 backdrop-blur-md transition-colors border-b md:border border-[#e8e0d4] dark:border-[#2e2822] dark:md:border-[#352f29] shadow-xs md:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.3)] md:rounded-[28px] overflow-hidden">
       {/* 2D Animated Horizon Background Canvas */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 opacity-35 dark:opacity-25">
         <NavbarOceanCanvas theme={theme} />
       </div>
 
-      <div className="relative z-10 w-full max-w-[1920px] px-3 sm:px-6 mx-auto">
-        <div className="flex items-center justify-between h-16 sm:h-20 gap-2 sm:gap-4">
+      <div className="relative z-10 w-full max-w-[1920px] px-2 sm:px-4 mx-auto">
+        <div className="flex items-center justify-between h-16 sm:h-[68px] gap-2 sm:gap-4">
           
           {/* ========================================================================= */}
-          {/* 1. LEFT: Brand Logo + Left-Aligned Search Bar                             */}
+          {/* 1. LEFT: Mobile Hamburger + Brand Logo + Responsive Search Bar           */}
           {/* ========================================================================= */}
-          <div className="flex items-center gap-3 sm:gap-5 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-3 md:gap-4 shrink-0">
+            {/* Mobile Hamburger Menu Drawer Toggle */}
+            <button
+              type="button"
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="md:hidden p-2 rounded-xl bg-white/80 dark:bg-[#1e1a16]/80 border border-[#e8e0d4] dark:border-[#352f29] text-[#241f1c] dark:text-[#f4ece1] hover:bg-white dark:hover:bg-[#25201b] transition-colors shadow-2xs cursor-pointer shrink-0"
+              aria-label="Open Navigation Menu"
+              title="Open Navigation Menu"
+            >
+              <Menu className="w-4 h-4 text-[#756c63] dark:text-[#a59b90]" />
+            </button>
+
             {/* Criation Brand Logo */}
             <Link
               href="/"
-              className="flex items-center gap-2 sm:gap-2.5 px-2.5 py-1.5 rounded-2xl bg-white/80 dark:bg-[#1e1a16]/80 border border-[#e8e0d4] dark:border-[#352f29] backdrop-blur-md hover:bg-white dark:hover:bg-[#25201b] transition-all shadow-xs shrink-0 group cursor-pointer"
+              className="flex items-center gap-1.5 sm:gap-2.5 px-2 sm:px-2.5 py-1.5 rounded-2xl bg-white/80 dark:bg-[#1e1a16]/80 border border-[#e8e0d4] dark:border-[#352f29] backdrop-blur-md hover:bg-white dark:hover:bg-[#25201b] transition-all shadow-xs shrink-0 group cursor-pointer"
               title="Criation Home"
             >
               <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-tr from-[#c25e3f] via-[#d97757] to-[#b58334] flex items-center justify-center text-white font-serif font-black text-base sm:text-lg shadow-sm group-hover:scale-105 transition-transform">
                 C
               </div>
               <div className="flex items-center">
-                <span className="font-serif font-black text-lg sm:text-xl tracking-tight text-[#241f1c] dark:text-[#f4ece1] leading-none">
+                <span className="font-serif font-black text-base sm:text-xl tracking-tight text-[#241f1c] dark:text-[#f4ece1] leading-none">
                   Criation<span className="text-[#c25e3f] dark:text-[#d97757]">.</span>
                 </span>
               </div>
             </Link>
 
-            {/* Left-Aligned Search Bar */}
-            <div ref={searchRef} className="w-[180px] sm:w-[240px] md:w-[300px] lg:w-[340px] relative">
+            {/* Left-Aligned Search Bar (Responsive Width) */}
+            <div ref={searchRef} className="w-[110px] xs:w-[150px] sm:w-[240px] md:w-[320px] lg:w-[380px] xl:w-[420px] relative">
               <form onSubmit={handleSearchSubmit}>
                 <div className="flex items-center w-full rounded-full border border-[#e8e0d4] dark:border-[#352f29] bg-white/90 dark:bg-[#1c1916]/90 backdrop-blur-md focus-within:border-[#c25e3f] dark:focus-within:border-[#d97757] focus-within:ring-2 focus-within:ring-[#c25e3f]/15 transition-all shadow-xs overflow-hidden">
-                  <div className="pl-3.5 text-[#9c9184]">
+                  <div className="pl-2.5 sm:pl-3.5 text-[#9c9184]">
                     <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </div>
                   <input
                     type="text"
-                    placeholder="Search crafts, gifts..."
+                    placeholder="Search crafts..."
                     value={searchQuery}
                     onChange={(e) => {
                       setSearchQuery(e.target.value);
                       setIsSearchOpen(true);
                     }}
                     onFocus={() => setIsSearchOpen(true)}
-                    className="w-full px-2.5 py-1.5 sm:py-2 text-xs sm:text-sm bg-transparent text-[#241f1c] dark:text-[#f4ece1] placeholder:text-[#9c9184] focus:outline-hidden"
+                    className="w-full px-2 sm:px-2.5 py-1.5 sm:py-2 text-xs sm:text-sm bg-transparent text-[#241f1c] dark:text-[#f4ece1] placeholder:text-[#9c9184] focus:outline-hidden"
                   />
                   {searchQuery && (
                     <button
@@ -306,10 +318,10 @@ export function Navbar() {
               <Moon className="block dark:hidden w-4 h-4 sm:w-5 sm:h-5 text-[#756c63]" />
             </button>
 
-            {/* Wishlist Button with Badge */}
+            {/* Wishlist Button with Badge (Hidden on mobile; provided in MobileBottomBar) */}
             <Link
               href="/wishlist"
-              className="relative p-2 sm:p-2.5 rounded-full bg-white/80 dark:bg-[#1e1a16]/80 border border-[#e8e0d4] dark:border-[#352f29] backdrop-blur-md hover:bg-white dark:hover:bg-[#25201b] text-[#241f1c] dark:text-[#f4ece1] transition-colors shadow-2xs"
+              className="hidden md:flex relative p-2 sm:p-2.5 rounded-full bg-white/80 dark:bg-[#1e1a16]/80 border border-[#e8e0d4] dark:border-[#352f29] backdrop-blur-md hover:bg-white dark:hover:bg-[#25201b] text-[#241f1c] dark:text-[#f4ece1] transition-colors shadow-2xs"
               title="Saved Wishlist"
             >
               <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -324,7 +336,7 @@ export function Navbar() {
             <button
               type="button"
               onClick={() => setIsMiniCartOpen(true)}
-              className="relative flex items-center gap-2 p-2 sm:px-3 sm:py-2 rounded-full bg-white/80 dark:bg-[#1e1a16]/80 border border-[#e8e0d4] dark:border-[#352f29] backdrop-blur-md hover:bg-white dark:hover:bg-[#25201b] text-[#241f1c] dark:text-[#f4ece1] transition-colors shadow-2xs cursor-pointer"
+              className="relative flex items-center gap-1.5 p-1.5 sm:px-3 sm:py-2 rounded-full bg-white/80 dark:bg-[#1e1a16]/80 border border-[#e8e0d4] dark:border-[#352f29] backdrop-blur-md hover:bg-white dark:hover:bg-[#25201b] text-[#241f1c] dark:text-[#f4ece1] transition-colors shadow-2xs cursor-pointer"
               title="View Cart"
             >
               <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 text-[#c25e3f] dark:text-[#d97757]" />
@@ -335,8 +347,8 @@ export function Navbar() {
               )}
             </button>
 
-            {/* Notifications Bell */}
-            <div ref={notifRef} className="relative">
+            {/* Notifications Bell (Visible on desktop/tablet) */}
+            <div ref={notifRef} className="relative hidden sm:block">
               <button
                 type="button"
                 onClick={() => setIsNotifOpen(!isNotifOpen)}
@@ -354,9 +366,9 @@ export function Navbar() {
               )}
             </div>
 
-            {/* User Profile / Auth Buttons: Completely Separate Sign In & Register */}
+            {/* User Profile / Auth Buttons: Separate Sign In & Register on Desktop (Hidden on mobile; featured in Drawer & Bottom Bar) */}
             {!mounted || !isAuthenticated ? (
-              <div className="flex items-center gap-1.5 ml-1">
+              <div className="hidden md:flex items-center gap-1.5 ml-1">
                 <Link
                   href="/auth/login"
                   className="px-3.5 py-2 rounded-full text-xs font-semibold text-[#241f1c] dark:text-[#f4ece1] hover:bg-[#ede6d8] dark:hover:bg-[#231f1b] border border-transparent hover:border-[#e8e0d4] dark:hover:border-[#352f29] transition-all flex items-center gap-1.5 cursor-pointer"
@@ -505,12 +517,24 @@ export function Navbar() {
                       type="button"
                       onClick={() => {
                         setIsProfileMenuOpen(false);
-                        openAccountSignOutModal();
+                        openAccountSwitcherModal();
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors cursor-pointer"
+                    >
+                      <ArrowRightLeft className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
+                      <span>Switch Account</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsProfileMenuOpen(false);
+                        logout();
                       }}
                       className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded-xl transition-colors cursor-pointer"
                     >
                       <LogOut className="w-4 h-4" />
-                      <span>Sign Out / Switch</span>
+                      <span>Sign Out</span>
                     </button>
                   </div>
                 )}
