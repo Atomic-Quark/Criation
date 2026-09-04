@@ -64,7 +64,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="flex min-h-full flex-col bg-[#faf7f2] dark:bg-[#141210] text-[#241f1c] dark:text-[#f4ece1] font-sans antialiased pb-14 lg:pb-0 transition-colors duration-300">
+      <body className="flex min-h-full flex-col bg-[#faf7f2] dark:bg-[#141210] text-[#241f1c] dark:text-[#f4ece1] font-sans antialiased pb-14 lg:pb-0 transition-colors duration-300 overflow-x-clip max-w-[100vw]">
         <StoreProvider>
           <Suspense fallback={null}>
             <RouteLoadingBar />

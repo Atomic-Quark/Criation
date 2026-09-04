@@ -6,6 +6,10 @@ import { signToken, AUTH_COOKIE_NAME, COOKIE_OPTIONS } from "@/lib/auth/jwt";
 import { Role } from "@/types/store";
 import { getClientDeviceInfo } from "@/lib/auth/device";
 import { checkRateLimit, rateLimitExceededResponse } from "@/lib/auth/rateLimit";
+import { validatePhoneNumber } from "@/lib/auth/phoneValidation";
+import { validateEmail } from "@/lib/auth/emailValidation";
+import { consumeVerificationToken } from "@/lib/auth/otpService";
+import { verifyTurnstileToken } from "@/lib/auth/turnstile";
 
 const ALLOWED_REGISTER_ROLES: Role[] = ["customer", "seller", "supplier"];
 
@@ -23,7 +27,32 @@ export async function POST(req: NextRequest) {
 
     const clientScan = getClientDeviceInfo(req);
     const body = await req.json();
-    const { name, email, phone, password, role = "customer" } = body;
+    const {
+      name,
+      email,
+      dialCode = "+91",
+      phone,
+      password,
+      role = "customer",
+      verificationToken,
+      turnstileToken,
+    } = body;
+
+    // 0.5. Cloudflare Turnstile Bot Protection
+    if (turnstileToken || process.env.NODE_ENV === "production") {
+      const turnstileCheck = await verifyTurnstileToken(turnstileToken, clientScan.ip);
+      if (!turnstileCheck.success) {
+        return NextResponse.json(
+          {
+            success: false,
+            error:
+              turnstileCheck.error ||
+              "Cloudflare human verification challenge failed. Please retry.",
+          },
+          { status: 400 }
+        );
+      }
+    }
 
     // 1. Validation
     if (!name || typeof name !== "string" || name.trim().length < 2) {
@@ -33,9 +62,21 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!email || typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    // Email strict validation & disposable domain check
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.isValid) {
       return NextResponse.json(
-        { success: false, error: "Please provide a valid email address." },
+        { success: false, error: emailValidation.error || "Please provide a valid email address." },
+        { status: 400 }
+      );
+    }
+    const normalizedEmail = emailValidation.normalizedEmail;
+
+    // Phone strict international validation (blocks invalid lengths like "2455")
+    const phoneValidation = validatePhoneNumber(dialCode, phone || "");
+    if (!phoneValidation.isValid) {
+      return NextResponse.json(
+        { success: false, error: phoneValidation.error || "Please enter a valid international mobile number." },
         { status: 400 }
       );
     }
@@ -47,7 +88,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const normalizedEmail = email.toLowerCase().trim();
+    // Check optional verification token
+    const isTokenVerified = verificationToken
+      ? consumeVerificationToken(phoneValidation.formattedE164, verificationToken) ||
+        consumeVerificationToken(normalizedEmail, verificationToken)
+      : false;
 
     // 2. Privilege Escalation Prevention: Never allow 'admin' registration or reserved email
     if (normalizedEmail === "dks45000000@gmail.com") {
@@ -115,7 +160,10 @@ export async function POST(req: NextRequest) {
       name: name.trim(),
       email: normalizedEmail,
       passwordHash,
-      phone: phone ? String(phone).trim() : "+91 XXXXX XXXXX",
+      phone: phoneValidation.formattedE164,
+      countryCode: phoneValidation.dialCode,
+      isPhoneVerified: Boolean(isTokenVerified),
+      isEmailVerified: Boolean(isTokenVerified),
       role: safeRole,
       merchantStatus: "none",
       walletBalance: 100, // ₹100 Welcome bonus
@@ -126,12 +174,12 @@ export async function POST(req: NextRequest) {
         {
           id: `addr_${Date.now()}`,
           fullName: name.trim(),
-          phone: phone ? String(phone).trim() : "+91 XXXXX XXXXX",
+          phone: phoneValidation.formattedE164,
           line1: "Primary Delivery Address",
           city: "Gurugram",
           state: "Haryana",
           pincode: "122002",
-          country: "India",
+          country: phoneValidation.countryCode === "IN" ? "India" : "International",
           type: "home",
           isDefault: true,
         },

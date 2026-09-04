@@ -60,24 +60,34 @@ export function MultiAccountSignOutModal() {
         className="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity animate-in fade-in duration-200"
       />
 
-      {/* GitHub-Style Card Modal */}
+      {/* Card Modal */}
       <div className="relative w-full max-w-md bg-[#0d1117] border border-[#30363d] rounded-2xl shadow-2xl overflow-hidden z-10 animate-in zoom-in-95 duration-200 text-zinc-100 font-sans">
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 pt-6 pb-4">
-          <h2 className="text-xl font-semibold text-white tracking-tight">
-            Select account to sign out
-          </h2>
+        <div className="flex items-center justify-between px-6 pt-6 pb-3 border-b border-[#30363d]/60">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-indigo-950/80 border border-indigo-700/40 flex items-center justify-center text-indigo-400">
+              <ArrowRightLeft className="w-4 h-4" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-white tracking-tight">
+                Switch Account
+              </h2>
+              <p className="text-xs text-zinc-400">
+                Choose an account on this device or add a new one
+              </p>
+            </div>
+          </div>
           <button
             type="button"
             onClick={closeAccountSignOutModal}
-            className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition-colors"
+            className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition-colors cursor-pointer"
             title="Close"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="px-6 pb-6 space-y-4">
+        <div className="p-6 space-y-4">
           {/* Accounts Card List */}
           <div className="bg-[#161b22] border border-[#30363d] rounded-xl overflow-hidden divide-y divide-[#30363d]">
             {accountsToDisplay.length === 0 ? (
@@ -91,7 +101,9 @@ export function MultiAccountSignOutModal() {
                 return (
                   <div
                     key={acc.email}
-                    className="flex items-center justify-between p-4 hover:bg-[#1c2128]/70 transition-colors gap-3"
+                    className={`flex items-center justify-between p-4 transition-colors gap-3 ${
+                      isActive ? "bg-indigo-950/20" : "hover:bg-[#1c2128]/70"
+                    }`}
                   >
                     {/* Account Info */}
                     <div className="flex items-center gap-3.5 min-w-0 flex-1">
@@ -111,26 +123,21 @@ export function MultiAccountSignOutModal() {
                       </div>
 
                       <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-semibold text-white truncate">
+                            {acc.name}
+                          </p>
                           {isActive ? (
-                            <span className="text-xs text-zinc-400 font-medium">
-                              Signed in as
+                            <span className="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                              Active
                             </span>
-                          ) : (
-                            <span className="text-xs text-zinc-500 font-medium">
-                              Signed in on device
-                            </span>
-                          )}
+                          ) : null}
                           {acc.role === "admin" && (
-                            <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
                               Admin
                             </span>
                           )}
                         </div>
-
-                        <p className="text-sm font-semibold text-white truncate">
-                          {acc.name}
-                        </p>
 
                         <div className="flex items-center gap-2 mt-0.5 text-[11px] text-zinc-400 truncate">
                           <span className="truncate">{acc.email}</span>
@@ -145,25 +152,32 @@ export function MultiAccountSignOutModal() {
 
                     {/* Action Buttons */}
                     <div className="flex items-center gap-2 shrink-0">
-                      {!isActive && (
+                      {!isActive ? (
                         <button
                           type="button"
                           onClick={() => switchAccount(acc.email)}
-                          className="px-2.5 py-1.5 text-xs font-medium rounded-lg bg-indigo-950/60 hover:bg-indigo-900/80 text-indigo-300 border border-indigo-700/50 transition-colors flex items-center gap-1 cursor-pointer"
+                          className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
                           title={`Switch to ${acc.name}`}
                         >
-                          <ArrowRightLeft className="w-3 h-3" />
+                          <ArrowRightLeft className="w-3.5 h-3.5" />
                           <span>Switch</span>
                         </button>
+                      ) : (
+                        <span className="text-xs font-medium text-emerald-400/90 px-2 py-1">
+                          Current
+                        </span>
                       )}
 
-                      <button
-                        type="button"
-                        onClick={() => signOutAccount(acc.email)}
-                        className="px-3 py-1.5 text-xs font-medium rounded-lg bg-[#21262d] hover:bg-[#30363d] text-zinc-200 border border-[#363b42] transition-colors cursor-pointer"
-                      >
-                        Sign out
-                      </button>
+                      {!isActive && (
+                        <button
+                          type="button"
+                          onClick={() => signOutAccount(acc.email)}
+                          className="px-2 py-1.5 text-xs font-medium rounded-lg text-zinc-400 hover:text-rose-400 hover:bg-rose-950/30 transition-colors cursor-pointer"
+                          title="Remove from device"
+                        >
+                          Remove
+                        </button>
+                      )}
                     </div>
                   </div>
                 );
@@ -175,23 +189,26 @@ export function MultiAccountSignOutModal() {
           <Link
             href="/auth/login"
             onClick={closeAccountSignOutModal}
-            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[#161b22] hover:bg-[#21262d] border border-[#30363d] text-zinc-300 hover:text-white text-xs font-medium transition-colors cursor-pointer"
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[#161b22] hover:bg-[#21262d] border border-[#30363d] text-zinc-300 hover:text-white text-xs font-semibold transition-colors cursor-pointer"
           >
             <Plus className="w-4 h-4 text-zinc-400" />
-            <span>Use another account</span>
+            <span>Sign in to another account</span>
           </Link>
 
-          {/* Sign out from all accounts Button (Matching GitHub Red Accent) */}
+          {/* Sign out from all accounts Button */}
           <button
             type="button"
             onClick={signOutAllAccounts}
-            className="w-full py-3 px-4 rounded-xl bg-[#161b22] hover:bg-[#21262d] border border-[#30363d] text-[#f85149] hover:text-[#ff7b72] text-sm font-semibold transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+            className="w-full py-2.5 px-4 rounded-xl bg-[#161b22]/50 hover:bg-[#21262d] border border-zinc-800 text-[#f85149] hover:text-[#ff7b72] text-xs font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer"
           >
-            <LogOut className="w-4 h-4" />
-            <span>Sign out from all accounts</span>
+            <LogOut className="w-3.5 h-3.5" />
+            <span>Sign out from all accounts on this device</span>
           </button>
         </div>
       </div>
     </div>
   );
 }
+
+export { MultiAccountSignOutModal as AccountSwitcherModal };
+

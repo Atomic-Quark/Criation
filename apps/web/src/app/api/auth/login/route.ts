@@ -5,6 +5,7 @@ import { User } from "@/lib/db/models/User";
 import { signToken, AUTH_COOKIE_NAME, COOKIE_OPTIONS } from "@/lib/auth/jwt";
 import { getClientDeviceInfo } from "@/lib/auth/device";
 import { checkRateLimit, rateLimitExceededResponse } from "@/lib/auth/rateLimit";
+import { verifyTurnstileToken } from "@/lib/auth/turnstile";
 
 export const SUPERADMIN_EMAIL = "dks45000000@gmail.com";
 
@@ -22,7 +23,23 @@ export async function POST(req: NextRequest) {
 
     const clientScan = getClientDeviceInfo(req);
     const body = await req.json();
-    const { email, password } = body;
+    const { email, password, turnstileToken } = body;
+
+    // 0.5. Cloudflare Turnstile Bot Protection
+    if (turnstileToken || process.env.NODE_ENV === "production") {
+      const turnstileCheck = await verifyTurnstileToken(turnstileToken, clientScan.ip);
+      if (!turnstileCheck.success) {
+        return NextResponse.json(
+          {
+            success: false,
+            error:
+              turnstileCheck.error ||
+              "Cloudflare human verification challenge failed. Please retry.",
+          },
+          { status: 400 }
+        );
+      }
+    }
 
     // 1. Input Validation
     if (!email || typeof email !== "string" || !password || typeof password !== "string") {

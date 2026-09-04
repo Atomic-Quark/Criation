@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit",
     "seed:admin": "npx tsx scripts/seed-admin.ts",
+    "sync:catalog": "npx tsx scripts/sync-catalog.ts",
     "clean": "node -e \"require('node:fs').rmSync('.next',{recursive:true,force:true})\""
   },
   "dependencies": {

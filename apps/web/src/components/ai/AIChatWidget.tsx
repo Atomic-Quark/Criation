@@ -121,11 +121,11 @@ export function AIChatWidget() {
       {/* Floating Trigger Button on the BOTTOM RIGHT (Sleek Round FAB with centered Sparkles icon) */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-40 h-12 w-12 rounded-full bg-gradient-to-tr from-indigo-600 via-purple-600 to-indigo-700 text-white shadow-xl shadow-indigo-600/35 hover:shadow-2xl hover:shadow-indigo-600/50 hover:scale-110 active:scale-95 transition-all duration-300 flex items-center justify-center border border-white/25 cursor-pointer backdrop-blur-xs group"
+        className="fixed bottom-[74px] sm:bottom-6 right-3 sm:right-6 z-40 h-11 w-11 sm:h-12 sm:w-12 rounded-full bg-gradient-to-tr from-indigo-600 via-purple-600 to-indigo-700 text-white shadow-xl shadow-indigo-600/35 hover:shadow-2xl hover:shadow-indigo-600/50 hover:scale-110 active:scale-95 transition-all duration-300 flex items-center justify-center border border-white/25 cursor-pointer backdrop-blur-xs group"
         aria-label="Open AI Assistant"
         title="Criation AI Shopping Concierge"
       >
-        <Sparkles className="w-6 h-6 text-white group-hover:rotate-12 group-hover:scale-110 transition-transform duration-300" />
+        <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white group-hover:rotate-12 group-hover:scale-110 transition-transform duration-300" />
 
         {/* Hover Tooltip Label */}
         <span className="absolute right-full mr-3 px-3 py-1.5 rounded-xl bg-zinc-900/95 dark:bg-zinc-800/95 text-white text-xs font-bold whitespace-nowrap shadow-xl border border-white/15 opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 translate-x-2 group-hover:translate-x-0">

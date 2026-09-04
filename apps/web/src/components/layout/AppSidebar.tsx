@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useStore } from "@/context/StoreContext";
+import { useStore, CurrencyCode } from "@/context/StoreContext";
 import {
   LayoutGrid,
   TrendingUp,
@@ -14,10 +14,16 @@ import {
   Settings,
   LogOut,
   LogIn,
-  ChevronRight,
   ShieldCheck,
   Store,
   X,
+  UserPlus,
+  ArrowRightLeft,
+  Sun,
+  Moon,
+  Package,
+  Wallet,
+  User,
 } from "lucide-react";
 
 export function AppSidebar() {
@@ -29,14 +35,18 @@ export function AppSidebar() {
     isAuthenticated,
     logout,
     openAccountSignOutModal,
+    openAccountSwitcherModal,
     deviceAccounts,
-    theme,
-    toggleTheme,
     isSidebarHovered,
     setIsSidebarHovered,
     isMobileMenuOpen,
     setIsMobileMenuOpen,
     setIsMiniCartOpen,
+    currency,
+    setCurrency,
+    formatPrice,
+    theme,
+    toggleTheme,
   } = useStore();
 
   const [mounted, setMounted] = useState(false);
@@ -47,12 +57,6 @@ export function AppSidebar() {
 
   const isExpanded = isSidebarHovered;
   const totalCartCount = cart.reduce((sum, i) => sum + i.quantity, 0);
-
-  // Dynamic user data matching server SSR initially, updating once mounted on client
-  const displayName = mounted ? (user?.name || "Guest User") : "Guest User";
-  const displayEmail = mounted ? (user?.email || "guest@criation.example") : "guest@criation.example";
-  const userInitial = mounted && user?.name ? user.name.charAt(0).toUpperCase() : "G";
-  const isDark = mounted ? theme === "dark" : false;
 
   // Navigation Items
   const navItems: Array<{
@@ -124,51 +128,8 @@ export function AppSidebar() {
           isExpanded ? "w-[244px]" : "w-[72px]"
         }`}
       >
-        {/* TOP SECTION: User Profile Card & Navigation */}
-        <div className="space-y-2">
-          {/* PROFILE INSET CARD */}
-          <Link
-            href="/account"
-            title={displayName}
-            className={`w-full flex items-center h-12 rounded-2xl transition-all duration-300 group ${
-              isExpanded
-                ? "bg-[#f0eae0]/80 dark:bg-[#231f1b] border border-[#e8e0d4] dark:border-[#352f29] pr-2.5"
-                : "bg-transparent border border-transparent justify-center"
-            }`}
-          >
-            {/* Stationary 48px Anchor Slot (Centerline at exactly X = 36px) */}
-            <div className="w-12 h-12 min-w-12 flex items-center justify-center shrink-0">
-              <div className="relative w-10 h-10 rounded-2xl overflow-hidden bg-gradient-to-tr from-[#c25e3f] via-[#d97757] to-[#b58334] flex items-center justify-center text-white font-serif font-black text-sm shadow-xs group-hover:scale-105 transition-transform">
-                <span suppressHydrationWarning>{userInitial}</span>
-                <span className="absolute top-0.5 right-0.5 w-2.5 h-2.5 rounded-full bg-[#56745f] ring-2 ring-[#faf7f2] dark:ring-[#161311]" />
-              </div>
-            </div>
-
-            {/* Smooth text expansion */}
-            <div
-              className={`overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] flex items-center justify-between min-w-0 flex-1 ${
-                isExpanded
-                  ? "max-w-[170px] opacity-100 ml-1.5"
-                  : "max-w-0 opacity-0 pointer-events-none"
-              }`}
-            >
-              <div className="min-w-0 flex-1 text-left">
-                <p
-                  suppressHydrationWarning
-                  className="text-xs font-bold text-[#241f1c] dark:text-[#f4ece1] truncate leading-tight"
-                >
-                  {displayName}
-                </p>
-                <p
-                  suppressHydrationWarning
-                  className="text-[10px] text-[#756c63] dark:text-[#a59b90] truncate leading-tight mt-0.5"
-                >
-                  {displayEmail}
-                </p>
-              </div>
-              <ChevronRight className="w-4 h-4 text-[#9c9184] group-hover:translate-x-0.5 transition-transform shrink-0 ml-1" />
-            </div>
-          </Link>
+        {/* TOP SECTION: Navigation Links */}
+        <div className="space-y-2 pt-2 sm:pt-3">
 
           {/* Superadmin Shortcut (if authorized) */}
           {mounted && user.role === "admin" && user.email?.toLowerCase().trim() === "dks45000000@gmail.com" && (
@@ -296,46 +257,6 @@ export function AppSidebar() {
               );
             })}
           </nav>
-
-          {/* DIVIDER (Centered at X = 36px in collapsed state, full width in expanded state) */}
-          <div
-            className="border-t border-[#e8e0d4] dark:border-[#352f29] my-3 mx-auto transition-all duration-300"
-            style={{ width: isExpanded ? "100%" : "36px" }}
-          />
-
-          {/* DARK MODE SWITCH */}
-          <button
-            type="button"
-            onClick={toggleTheme}
-            role="switch"
-            aria-checked={isDark}
-            aria-label="Toggle dark mode"
-            className={`w-full h-11 flex items-center rounded-2xl transition-all duration-300 cursor-pointer ${
-              isExpanded
-                ? "justify-between px-2.5 hover:bg-[#f0eae0]/70 dark:hover:bg-[#231f1b]"
-                : "justify-center hover:opacity-80"
-            }`}
-            title="Toggle Dark Mode"
-          >
-            {isExpanded && (
-              <span className="text-xs font-semibold text-[#756c63] dark:text-[#a59b90] whitespace-nowrap animate-in fade-in duration-200">
-                Dark Mode
-              </span>
-            )}
-
-            {/* Toggle switch pill */}
-            <div
-              className={`w-10 h-5 rounded-full transition-colors relative shrink-0 ${
-                isDark ? "bg-[#c25e3f]" : "bg-[#e8e0d4] dark:bg-[#352f29]"
-              }`}
-            >
-              <span
-                className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow-md transition-transform duration-200 ${
-                  isDark ? "translate-x-5" : "translate-x-0"
-                }`}
-              />
-            </div>
-          </button>
         </div>
 
         {/* BOTTOM SECTION: Settings & Logout/Sign In */}
@@ -368,9 +289,9 @@ export function AppSidebar() {
           {mounted && isAuthenticated ? (
             <button
               type="button"
-              onClick={openAccountSignOutModal}
+              onClick={logout}
               className="w-full flex items-center h-11 rounded-2xl hover:bg-[#fdf0ed] dark:hover:bg-[#2d1b1a] transition-all group cursor-pointer"
-              title={!isExpanded ? "Accounts & Sign Out" : undefined}
+              title={!isExpanded ? "Logout" : undefined}
             >
               <div className="w-12 h-11 min-w-12 flex items-center justify-center shrink-0">
                 <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-[#8a8075] group-hover:text-[#b75258] dark:group-hover:text-[#cf6e74] group-hover:bg-[#c25e3f]/10 transition-colors">
@@ -425,40 +346,152 @@ export function AppSidebar() {
             className="fixed inset-0 bg-black/60 backdrop-blur-xs"
             onClick={() => setIsMobileMenuOpen(false)}
           />
-          <div className="fixed inset-y-0 left-0 w-[280px] bg-white dark:bg-zinc-950 p-5 shadow-2xl flex flex-col justify-between overflow-y-auto">
+          <div className="fixed inset-y-0 left-0 w-[300px] max-w-[85vw] bg-[#faf7f2] dark:bg-[#161311] border-r border-[#e8e0d4] dark:border-[#352f29] p-4 shadow-2xl flex flex-col justify-between overflow-y-auto text-[#241f1c] dark:text-[#f4ece1]">
             <div className="space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
+              {/* Header: Logo, Theme, and Close */}
+              <div className="flex items-center justify-between pb-3 border-b border-[#e8e0d4] dark:border-[#352f29]">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-400 to-indigo-600 flex items-center justify-center text-white font-black text-sm">
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#c25e3f] via-[#d97757] to-[#b58334] flex items-center justify-center text-white font-serif font-black text-base shadow-sm">
                     C
                   </div>
-                  <span className="font-black text-base text-zinc-900 dark:text-zinc-100">Criation.</span>
+                  <span className="font-serif font-black text-lg tracking-tight text-[#241f1c] dark:text-[#f4ece1]">
+                    Criation<span className="text-[#c25e3f] dark:text-[#d97757]">.</span>
+                  </span>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-1 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
-                >
-                  <X className="w-5 h-5" />
-                </button>
+
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={toggleTheme}
+                    className="p-2 rounded-full bg-white/80 dark:bg-[#231f1b] border border-[#e8e0d4] dark:border-[#352f29] text-[#241f1c] dark:text-[#f4ece1] cursor-pointer shadow-2xs"
+                    title="Toggle Theme"
+                  >
+                    <Sun className="hidden dark:block w-4 h-4 text-[#d49f48]" />
+                    <Moon className="block dark:hidden w-4 h-4 text-[#756c63]" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="p-2 rounded-xl text-[#756c63] dark:text-[#a59b90] hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
 
-              {/* Mobile Nav Links */}
+              {/* User / Auth Section in Mobile Drawer */}
+              {mounted && isAuthenticated ? (
+                <div className="p-3 rounded-2xl bg-white dark:bg-[#1e1a16] border border-[#e8e0d4] dark:border-[#352f29] shadow-xs space-y-2.5">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#c25e3f] to-[#b58334] flex items-center justify-center text-white font-bold text-xs shadow-xs">
+                      {user.name ? user.name.charAt(0).toUpperCase() : "U"}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-bold truncate text-[#241f1c] dark:text-[#f4ece1]">{user.name}</p>
+                      <p className="text-[10px] text-[#756c63] dark:text-[#a59b90] truncate">{user.email}</p>
+                    </div>
+                    <span className="text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider bg-[#c25e3f]/10 text-[#c25e3f] dark:text-[#d97757]">
+                      {user.role}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-1 border-t border-[#e8e0d4]/60 dark:border-[#352f29]/60 text-[11px]">
+                    <span className="text-[#756c63] dark:text-[#a59b90]">Wallet Balance:</span>
+                    <span className="font-bold text-emerald-600 dark:text-emerald-400">{formatPrice(user.walletBalance)}</span>
+                  </div>
+
+                  {/* Superadmin shortcut if applicable */}
+                  {user.role === "admin" && user.email?.toLowerCase().trim() === "dks45000000@gmail.com" && (
+                    <Link
+                      href="/admin"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center justify-between p-2 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 text-xs font-bold"
+                    >
+                      <div className="flex items-center gap-2">
+                        <ShieldCheck className="w-4 h-4" />
+                        <span>Superadmin Console</span>
+                      </div>
+                    </Link>
+                  )}
+
+                  {/* Merchant shortcut if seller */}
+                  {user.role === "seller" && (
+                    <Link
+                      href="/seller"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center justify-between p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 text-xs font-bold"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Store className="w-4 h-4" />
+                        <span>Merchant Hub</span>
+                      </div>
+                    </Link>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        openAccountSwitcherModal();
+                      }}
+                      className="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl bg-[#f0eae0] dark:bg-[#28231e] text-[11px] font-semibold text-[#241f1c] dark:text-[#f4ece1] hover:opacity-90 cursor-pointer"
+                    >
+                      <ArrowRightLeft className="w-3.5 h-3.5 text-indigo-500" />
+                      <span>Switch</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        logout();
+                      }}
+                      className="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl bg-rose-50 dark:bg-rose-950/50 text-[11px] font-semibold text-rose-600 dark:text-rose-400 hover:opacity-90 cursor-pointer"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-3.5 rounded-2xl bg-white dark:bg-[#1e1a16] border border-[#e8e0d4] dark:border-[#352f29] shadow-xs space-y-2.5">
+                  <div>
+                    <h4 className="text-xs font-bold text-[#241f1c] dark:text-[#f4ece1]">Join Criation</h4>
+                    <p className="text-[11px] text-[#756c63] dark:text-[#a59b90]">
+                      Get ₹100 shopping credit on signup!
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Link
+                      href="/auth/login"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border border-[#e8e0d4] dark:border-[#352f29] text-xs font-semibold text-[#241f1c] dark:text-[#f4ece1] hover:bg-[#f0eae0] dark:hover:bg-[#231f1b]"
+                    >
+                      <LogIn className="w-3.5 h-3.5" />
+                      <span>Sign In</span>
+                    </Link>
+                    <Link
+                      href="/auth/register"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-gradient-to-r from-[#c25e3f] via-[#b58334] to-[#c25e3f] text-white text-xs font-semibold shadow-xs"
+                    >
+                      <UserPlus className="w-3.5 h-3.5" />
+                      <span>Register</span>
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {/* Navigation Links */}
               <nav className="space-y-1">
                 {navItems.map((item) => {
                   const Icon = item.icon;
-                  return (
-                    <Link
-                      key={item.id}
-                      href={item.href || "#"}
-                      onClick={() => {
-                        if (item.action) item.action();
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className={`flex items-center justify-between p-2.5 rounded-xl text-xs font-semibold ${
+                  const content = (
+                    <div
+                      className={`flex items-center justify-between p-2.5 rounded-xl text-xs font-semibold transition-colors ${
                         item.isActive
-                          ? "bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400"
-                          : "text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900"
+                          ? "bg-[#c25e3f] text-white shadow-xs"
+                          : "text-[#241f1c] dark:text-[#f4ece1] hover:bg-[#f0eae0] dark:hover:bg-[#231f1b]"
                       }`}
                     >
                       <div className="flex items-center gap-3">
@@ -466,37 +499,75 @@ export function AppSidebar() {
                         <span>{item.label}</span>
                       </div>
                       {item.badge !== undefined && (
-                        <span className="px-2 py-0.5 rounded-full bg-[#c25e3f] text-white text-[10px] font-bold">
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            item.isActive
+                              ? "bg-white text-[#c25e3f]"
+                              : "bg-[#c25e3f] text-white"
+                          }`}
+                        >
                           {item.badge}
                         </span>
                       )}
+                    </div>
+                  );
+
+                  if (item.action) {
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => {
+                          item.action!();
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="w-full text-left cursor-pointer"
+                      >
+                        {content}
+                      </button>
+                    );
+                  }
+
+                  return (
+                    <Link
+                      key={item.id}
+                      href={item.href!}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {content}
                     </Link>
                   );
                 })}
               </nav>
 
-              {/* Dark mode in mobile */}
-              <div className="flex items-center justify-between p-3 rounded-xl bg-zinc-100 dark:bg-zinc-900 text-xs font-semibold">
-                <span>Dark Mode</span>
-                <button
-                  type="button"
-                  onClick={toggleTheme}
-                  className={`w-10 h-5 rounded-full transition-colors relative cursor-pointer ${
-                    isDark ? "bg-blue-600" : "bg-zinc-300 dark:bg-zinc-700"
-                  }`}
-                >
-                  <span
-                    className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow-md transition-transform ${
-                      isDark ? "translate-x-5" : "translate-x-0"
-                    }`}
-                  />
-                </button>
+              {/* Currency Selector on Mobile Drawer */}
+              <div className="pt-2 border-t border-[#e8e0d4] dark:border-[#352f29]">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#756c63] dark:text-[#a59b90] px-1 pb-1.5">
+                  Select Currency
+                </p>
+                <div className="grid grid-cols-4 gap-1.5">
+                  {(["INR", "USD", "EUR", "GBP"] as CurrencyCode[]).map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => setCurrency(c)}
+                      className={`py-1.5 px-2 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                        currency === c
+                          ? "bg-[#c25e3f] text-white shadow-xs"
+                          : "bg-white dark:bg-[#1e1a16] border border-[#e8e0d4] dark:border-[#352f29] text-[#756c63] dark:text-[#a59b90]"
+                      }`}
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
             {/* Mobile Footer */}
-            <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800 text-xs text-zinc-500">
-              <p>© 2026 Criation Inc.</p>
+            <div className="pt-4 border-t border-[#e8e0d4] dark:border-[#352f29] text-[11px] text-[#756c63] dark:text-[#a59b90] flex items-center justify-between">
+              <span>© 2026 Criation Platform</span>
+              <span className="font-semibold text-[#c25e3f] dark:text-[#d97757]">v1.0 Mobile Web</span>
             </div>
           </div>
         </div>

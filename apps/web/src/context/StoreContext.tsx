@@ -118,12 +118,25 @@ interface StoreContextType {
   user: UserProfile;
   isAuthenticated: boolean;
   isAdminAuthenticated: boolean;
-  login: (email: string, password?: string, role?: Role) => Promise<{ success: boolean; error?: string }>;
-  registerUser: (userData: { name: string; email: string; phone: string; password?: string }) => Promise<{ success: boolean; error?: string }>;
+  login: (
+    email: string,
+    password?: string,
+    role?: Role,
+    turnstileToken?: string
+  ) => Promise<{ success: boolean; error?: string }>;
+  registerUser: (userData: {
+    name: string;
+    email: string;
+    phone: string;
+    dialCode?: string;
+    password?: string;
+    verificationToken?: string;
+    turnstileToken?: string;
+  }) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   authenticateAdmin: (pinOrKey?: string) => boolean;
   lockAdmin: () => void;
-  updateProfile: (updates: Partial<UserProfile>) => void;
+  updateProfile: (updates: Partial<UserProfile> & { dialCode?: string }) => Promise<{ success: boolean; error?: string }>;
   addAddress: (address: Omit<Address, "id">) => void;
   updateAddress: (id: string, updates: Partial<Address>) => void;
   deleteAddress: (id: string) => void;
@@ -154,11 +167,14 @@ interface StoreContextType {
   setCurrency: (c: CurrencyCode) => void;
   formatPrice: (amountInInr: number) => string;
 
-  // Multi-Account Device Management (GitHub Style)
+  // Multi-Account Device Management & Account Switching
   deviceAccounts: DeviceAccount[];
   isAccountSignOutModalOpen: boolean;
+  isAccountSwitcherModalOpen: boolean;
   openAccountSignOutModal: () => void;
   closeAccountSignOutModal: () => void;
+  openAccountSwitcherModal: () => void;
+  closeAccountSwitcherModal: () => void;
   signOutAccount: (email: string) => Promise<void>;
   signOutAllAccounts: () => Promise<void>;
   switchAccount: (email: string) => Promise<void>;
@@ -179,7 +195,7 @@ export interface DeviceAccount {
 const StoreContext = createContext<StoreContextType | null>(null);
 
 const STORAGE_KEYS = {
-  PRODUCTS: "criation_products_v2",
+  PRODUCTS: "criation_products_v3",
   CART: "criation_cart_v2",
   SAVED_FOR_LATER: "criation_saved_v2",
   WISHLIST: "criation_wishlist_v2",
@@ -226,12 +242,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [isSidebarHovered, setIsSidebarHovered] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Multi-Account Device Management (GitHub Style)
+  // Multi-Account Device Management & Account Switching
   const [deviceAccounts, setDeviceAccounts] = useState<DeviceAccount[]>([]);
   const [isAccountSignOutModalOpen, setIsAccountSignOutModalOpen] = useState(false);
 
   const openAccountSignOutModal = () => setIsAccountSignOutModalOpen(true);
   const closeAccountSignOutModal = () => setIsAccountSignOutModalOpen(false);
+  const openAccountSwitcherModal = () => setIsAccountSignOutModalOpen(true);
+  const closeAccountSwitcherModal = () => setIsAccountSignOutModalOpen(false);
 
   const toggleSidebar = () => {
     setIsSidebarCollapsed((prev) => !prev);
@@ -322,6 +340,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         try {
           localStorage.removeItem("criation_cart_v1");
           localStorage.removeItem("criation_wishlist_v1");
+          localStorage.removeItem("criation_products_v2");
+          localStorage.removeItem("criation_products_v1");
         } catch (_) {}
       }
 
@@ -985,9 +1005,30 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   };
 
   // User Profile & Addresses
-  const updateProfile = (updates: Partial<UserProfile>) => {
-    setUser((prev) => ({ ...prev, ...updates }));
-    showToast("Profile Updated", "Your account settings have been saved.", "success");
+  const updateProfile = async (
+    updates: Partial<UserProfile> & { dialCode?: string }
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const res = await fetch("/api/auth/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updates),
+      });
+      const data = await res.json();
+      if (data.success && data.user) {
+        setUser((prev) => ({ ...prev, ...data.user }));
+        showToast("Profile Updated 👤", "Your account settings have been saved to database.", "success");
+        return { success: true };
+      } else {
+        const err = data.error || "Failed to update profile.";
+        showToast("Update Failed", err, "error");
+        return { success: false, error: err };
+      }
+    } catch (e: any) {
+      const err = e.message || "Failed to update profile.";
+      showToast("Network Error", err, "error");
+      return { success: false, error: err };
+    }
   };
 
   const addAddress = (addr: Omit<Address, "id">) => {
@@ -1108,13 +1149,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const login = async (
     email: string,
     password?: string,
-    role: Role = "customer"
+    role: Role = "customer",
+    turnstileToken?: string
   ): Promise<{ success: boolean; error?: string }> => {
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, role }),
+        body: JSON.stringify({ email, password, role, turnstileToken }),
       });
       const data = await res.json();
 
@@ -1149,7 +1191,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     name: string;
     email: string;
     phone: string;
+    dialCode?: string;
     password?: string;
+    verificationToken?: string;
   }): Promise<{ success: boolean; error?: string }> => {
     try {
       const res = await fetch("/api/auth/register", {
@@ -1428,11 +1472,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     setCurrency,
     formatPrice,
 
-    // Multi-Account Device Management (GitHub Style)
+    // Multi-Account Device Management & Switching
     deviceAccounts,
     isAccountSignOutModalOpen,
+    isAccountSwitcherModalOpen: isAccountSignOutModalOpen,
     openAccountSignOutModal,
     closeAccountSignOutModal,
+    openAccountSwitcherModal,
+    closeAccountSwitcherModal,
     signOutAccount,
     signOutAllAccounts,
     switchAccount,
