@@ -79,6 +79,11 @@ export async function verifyTokenEdge(token: string): Promise<JWTPayload | null>
 
 export const AUTH_COOKIE_NAME = "criation_auth_token";
 
+/**
+ * Direct alias for verifyTokenEdge as standard verifyJwt
+ */
+export const verifyJwt = verifyTokenEdge;
+
 export const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",

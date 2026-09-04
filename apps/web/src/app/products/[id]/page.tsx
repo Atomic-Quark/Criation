@@ -159,68 +159,77 @@ export default function ProductDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 sm:gap-12 items-start">
         {/* Left Gallery Column */}
         <div className="lg:col-span-7 space-y-4 sticky top-24">
-          {/* Main Large Image */}
-          <div className="relative aspect-square w-full rounded-3xl overflow-hidden bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-lg group">
-            <Image
-              src={product.images[selectedImageIdx]?.url || product.images[0]?.url || "/products/craft-item-01.jpeg"}
-              alt={product.images[selectedImageIdx]?.alt || product.name}
-              fill
-              priority
-              className="object-cover group-hover:scale-105 transition-transform duration-500"
-              sizes="(max-width: 1024px) 100vw, 600px"
-            />
+          {/* Main Large Image with Studio Aura */}
+          <div className="relative">
+            {/* Ambient luxury glow aura behind the stage */}
+            <div className="absolute -inset-3 bg-gradient-to-tr from-[#c25e3f]/20 via-[#b58334]/15 to-transparent rounded-[36px] blur-2xl pointer-events-none opacity-70 group-hover:opacity-100 transition-opacity duration-500" />
 
-            {/* Badges */}
-            <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
-              {product.badge && (
-                <span className="px-3 py-1 rounded-xl text-xs font-black uppercase tracking-wider bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 shadow-md">
-                  {product.badge}
-                </span>
-              )}
-              {discountPercent && (
-                <span className="px-3 py-1 rounded-xl text-xs font-black bg-rose-600 text-white shadow-xs">
-                  {discountPercent}% OFF
-                </span>
-              )}
-            </div>
+            <div className="product-stage-backdrop relative aspect-square w-full rounded-3xl overflow-hidden border border-[#e8e0d4] dark:border-[#352f29] shadow-xl group">
+              <Image
+                src={product.images[selectedImageIdx]?.url || product.images[0]?.url || "/products/craft-item-01.jpeg"}
+                alt={product.images[selectedImageIdx]?.alt || product.name}
+                fill
+                priority
+                className="product-image-aesthetic object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                sizes="(max-width: 1024px) 100vw, 600px"
+              />
 
-            {/* Top Right Action Buttons */}
-            <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
-              <button
-                onClick={handleShare}
-                className="p-3 rounded-2xl bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border border-zinc-200/60 dark:border-zinc-700/60 text-zinc-700 dark:text-zinc-200 hover:text-indigo-600 shadow-md transition-colors"
-                title="Share product"
-              >
-                <Share2 className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => toggleWishlist(product)}
-                className={`p-3 rounded-2xl backdrop-blur-md border shadow-md transition-all active:scale-90 ${
-                  isWished
-                    ? "bg-rose-50 dark:bg-rose-950/80 border-rose-200 text-rose-600"
-                    : "bg-white/80 dark:bg-zinc-900/80 border-zinc-200/60 dark:border-zinc-700/60 text-zinc-700 dark:text-zinc-200 hover:text-rose-600"
-                }`}
-                title="Wishlist"
-              >
-                <Heart className={`w-4 h-4 ${isWished ? "fill-rose-500 text-rose-500" : ""}`} />
-              </button>
+              {/* Studio lighting sheen & luxury bezel ring */}
+              <div className="product-sheen-overlay" />
+
+              {/* Badges */}
+              <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
+                {product.badge && (
+                  <span className="px-3 py-1 rounded-xl text-xs font-bold uppercase tracking-wider bg-[#241f1c]/90 text-[#f4ece1] dark:bg-[#f4ece1]/95 dark:text-[#241f1c] shadow-md backdrop-blur-md">
+                    {product.badge}
+                  </span>
+                )}
+                {discountPercent && (
+                  <span className="px-3 py-1 rounded-xl text-xs font-bold bg-[#c25e3f] text-white shadow-xs">
+                    {discountPercent}% OFF
+                  </span>
+                )}
+              </div>
+
+              {/* Top Right Action Buttons */}
+              <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
+                <button
+                  onClick={handleShare}
+                  className="p-3 rounded-2xl bg-white/85 dark:bg-[#1c1916]/85 backdrop-blur-md border border-[#e8e0d4] dark:border-[#352f29] text-[#756c63] dark:text-[#a59b90] hover:text-[#c25e3f] shadow-md transition-colors cursor-pointer"
+                  title="Share product"
+                >
+                  <Share2 className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => toggleWishlist(product)}
+                  className={`p-3 rounded-2xl backdrop-blur-md border shadow-md transition-all active:scale-90 cursor-pointer ${
+                    isWished
+                      ? "bg-[#fdf0ed] dark:bg-[#2d1b1a] border-[#f5d5cc] dark:border-[#452620] text-[#b75258]"
+                      : "bg-white/85 dark:bg-[#1c1916]/85 border-[#e8e0d4] dark:border-[#352f29] text-[#756c63] dark:text-[#a59b90] hover:text-[#b75258]"
+                  }`}
+                  title="Wishlist"
+                >
+                  <Heart className={`w-4 h-4 ${isWished ? "fill-[#b75258] text-[#b75258]" : ""}`} />
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Thumbnail Strip */}
+          {/* Thumbnail Strip with Studio Stage */}
           {product.images.length > 1 && (
             <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
               {product.images.map((img, idx) => (
                 <button
                   key={idx}
                   onClick={() => setSelectedImageIdx(idx)}
-                  className={`relative w-20 h-20 rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 shrink-0 border-2 transition-all ${
+                  className={`product-stage-backdrop relative w-20 h-20 rounded-2xl overflow-hidden shrink-0 border-2 transition-all cursor-pointer ${
                     selectedImageIdx === idx
-                      ? "border-indigo-600 dark:border-indigo-400 ring-2 ring-indigo-500/20 scale-105"
-                      : "border-transparent opacity-70 hover:opacity-100"
+                      ? "border-[#c25e3f] dark:border-[#d97757] ring-2 ring-[#c25e3f]/25 scale-105 shadow-md"
+                      : "border-[#e8e0d4] dark:border-[#352f29] opacity-75 hover:opacity-100"
                   }`}
                 >
-                  <Image src={img.url} alt={img.alt} fill className="object-cover" sizes="80px" />
+                  <Image src={img.url} alt={img.alt} fill className="product-image-aesthetic object-cover" sizes="80px" />
+                  <div className="product-sheen-overlay" />
                 </button>
               ))}
             </div>
@@ -460,37 +469,39 @@ export default function ProductDetailPage() {
               <div className="flex items-center gap-4">
                 {/* Item 1 */}
                 <div className="flex items-center gap-3">
-                  <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-zinc-200">
+                  <div className="product-stage-backdrop relative w-16 h-16 rounded-xl overflow-hidden border border-[#e8e0d4] dark:border-[#352f29]">
                     <Image
                       src={product.images[0]?.url || "/products/craft-item-01.jpeg"}
                       alt={product.name}
                       fill
-                      className="object-cover"
+                      className="product-image-aesthetic object-cover"
                       sizes="64px"
                     />
+                    <div className="product-sheen-overlay" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate max-w-[140px]">{product.name}</p>
-                    <p className="text-xs text-indigo-600 font-bold">{formatPrice(product.price)}</p>
+                    <p className="text-xs font-semibold text-[#241f1c] dark:text-[#f4ece1] truncate max-w-[140px]">{product.name}</p>
+                    <p className="font-serif text-xs text-[#c25e3f] dark:text-[#d97757] font-bold">{formatPrice(product.price)}</p>
                   </div>
                 </div>
 
-                <span className="text-xl font-bold text-zinc-400">+</span>
+                <span className="text-xl font-bold text-[#8a8075]">+</span>
 
                 {/* Item 2 */}
                 <div className="flex items-center gap-3">
-                  <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-zinc-200">
+                  <div className="product-stage-backdrop relative w-16 h-16 rounded-xl overflow-hidden border border-[#e8e0d4] dark:border-[#352f29]">
                     <Image
                       src={bundleProduct.images[0]?.url || "/products/craft-item-26.jpeg"}
                       alt={bundleProduct.name}
                       fill
-                      className="object-cover"
+                      className="product-image-aesthetic object-cover"
                       sizes="64px"
                     />
+                    <div className="product-sheen-overlay" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate max-w-[140px]">{bundleProduct.name}</p>
-                    <p className="text-xs text-indigo-600 font-bold">{formatPrice(bundleProduct.price)}</p>
+                    <p className="text-xs font-semibold text-[#241f1c] dark:text-[#f4ece1] truncate max-w-[140px]">{bundleProduct.name}</p>
+                    <p className="font-serif text-xs text-[#c25e3f] dark:text-[#d97757] font-bold">{formatPrice(bundleProduct.price)}</p>
                   </div>
                 </div>
               </div>

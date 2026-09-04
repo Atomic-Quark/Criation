@@ -1,35 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/db/mongodb";
 import { MerchantApplication } from "@/lib/db/models/MerchantApplication";
-import { verifyTokenEdge, AUTH_COOKIE_NAME } from "@/lib/auth/jwt";
-
-const SUPERADMIN_EMAIL = "dks45000000@gmail.com";
+import { requireRole } from "@/lib/auth/requireRole";
 
 export async function GET(req: NextRequest) {
   try {
-    // 1. Verify Superadmin Authorization
-    const token =
-      req.cookies.get(AUTH_COOKIE_NAME)?.value ||
-      req.headers.get("authorization")?.replace("Bearer ", "");
-
-    if (!token) {
-      return NextResponse.json(
-        { success: false, error: "Authentication required." },
-        { status: 401 }
-      );
-    }
-
-    const session = await verifyTokenEdge(token);
-    if (
-      !session ||
-      session.role !== "admin" ||
-      session.email?.toLowerCase().trim() !== SUPERADMIN_EMAIL
-    ) {
-      return NextResponse.json(
-        { success: false, error: "Forbidden: Superadmin access strictly restricted." },
-        { status: 403 }
-      );
-    }
+    // 1. Defense-in-Depth Superadmin Authorization
+    const auth = await requireRole(req, ["admin"], { requireSuperadmin: true });
+    if (!auth.ok) return auth.response;
 
     await connectToDatabase();
 

@@ -4,11 +4,22 @@ import { connectToDatabase } from "@/lib/db/mongodb";
 import { User } from "@/lib/db/models/User";
 import { signToken, AUTH_COOKIE_NAME, COOKIE_OPTIONS } from "@/lib/auth/jwt";
 import { getClientDeviceInfo } from "@/lib/auth/device";
+import { checkRateLimit, rateLimitExceededResponse } from "@/lib/auth/rateLimit";
 
 export const SUPERADMIN_EMAIL = "dks45000000@gmail.com";
 
 export async function POST(req: NextRequest) {
   try {
+    // 0. Enforce Rate Limiting (5 attempts per 60 seconds per IP)
+    const rateCheck = await checkRateLimit(req, {
+      maxRequests: 5,
+      windowSeconds: 60,
+      action: "auth:login",
+    });
+    if (!rateCheck.success) {
+      return rateLimitExceededResponse(rateCheck);
+    }
+
     const clientScan = getClientDeviceInfo(req);
     const body = await req.json();
     const { email, password } = body;

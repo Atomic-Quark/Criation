@@ -7,6 +7,7 @@ import { useStore } from "@/context/StoreContext";
 import {
   LayoutGrid,
   TrendingUp,
+  Flame,
   MessageSquare,
   ShoppingCart,
   Heart,
@@ -53,8 +54,16 @@ export function AppSidebar() {
   const userInitial = mounted && user?.name ? user.name.charAt(0).toUpperCase() : "G";
   const isDark = mounted ? theme === "dark" : false;
 
-  // Navigation Items matching the reference design
-  const navItems = [
+  // Navigation Items
+  const navItems: Array<{
+    id: string;
+    label: string;
+    href?: string;
+    action?: () => void;
+    icon: React.ComponentType<{ className?: string }>;
+    isActive: boolean;
+    badge?: number | string;
+  }> = [
     {
       id: "dashboard",
       label: "Dashboard",
@@ -70,11 +79,19 @@ export function AppSidebar() {
       isActive: pathname.startsWith("/products"),
     },
     {
-      id: "messages",
-      label: "Messages & Deals",
+      id: "deals",
+      label: "Flash Deals",
       href: "/deals",
-      icon: MessageSquare,
+      icon: Flame,
       isActive: pathname.startsWith("/deals"),
+      badge: "HOT",
+    },
+    {
+      id: "messages",
+      label: "Messages",
+      href: "/messages",
+      icon: MessageSquare,
+      isActive: pathname.startsWith("/messages"),
       badge: 2,
     },
     {
@@ -213,8 +230,8 @@ export function AppSidebar() {
                     </div>
 
                     {/* Collapsed Badge */}
-                    {!isExpanded && mounted && Boolean(item.badge && item.badge > 0) && (
-                      <span className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-[#c25e3f] text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-[#faf7f2] dark:ring-[#161311] shadow-xs animate-in zoom-in duration-200">
+                    {!isExpanded && mounted && item.badge !== undefined && (
+                      <span className="absolute top-0.5 right-0.5 min-w-4 h-4 px-1 rounded-full bg-[#c25e3f] text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-[#faf7f2] dark:ring-[#161311] shadow-xs animate-in zoom-in duration-200">
                         {item.badge}
                       </span>
                     )}
@@ -239,8 +256,8 @@ export function AppSidebar() {
                     </span>
 
                     {/* Expanded Badge */}
-                    {Boolean(item.badge && item.badge > 0) && (
-                      <span className="ml-auto px-1.5 py-0.5 rounded-full bg-[#c25e3f] text-white text-[10px] font-bold shrink-0 shadow-xs">
+                    {item.badge !== undefined && (
+                      <span className="ml-auto px-2 py-0.5 rounded-full bg-[#c25e3f] text-white text-[10px] font-bold shrink-0 shadow-xs uppercase tracking-wider">
                         {item.badge}
                       </span>
                     )}
@@ -448,8 +465,8 @@ export function AppSidebar() {
                         <Icon className="w-4 h-4" />
                         <span>{item.label}</span>
                       </div>
-                      {Boolean(item.badge && item.badge > 0) && (
-                        <span className="px-1.5 py-0.2 rounded-full bg-blue-500 text-white text-[10px] font-bold">
+                      {item.badge !== undefined && (
+                        <span className="px-2 py-0.5 rounded-full bg-[#c25e3f] text-white text-[10px] font-bold">
                           {item.badge}
                         </span>
                       )}
