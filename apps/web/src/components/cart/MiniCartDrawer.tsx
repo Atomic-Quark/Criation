@@ -157,14 +157,15 @@ export function MiniCartDrawer() {
                   key={item.id}
                   className="flex gap-3.5 p-3.5 rounded-2xl bg-white dark:bg-[#1c1916] border border-[#e8e0d4] dark:border-[#352f29] shadow-2xs hover:border-[#c25e3f]/40 dark:hover:border-[#d97757]/40 transition-colors"
                 >
-                  <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-[#faf7f2] dark:bg-[#24201c] shrink-0 border border-[#e8e0d4] dark:border-[#352f29]">
+                  <div className="product-stage-backdrop relative w-20 h-20 rounded-xl overflow-hidden shrink-0 border border-[#e8e0d4] dark:border-[#352f29]">
                     <Image
                       src={item.image}
                       alt={item.name}
                       fill
-                      className="object-cover"
+                      className="product-image-aesthetic object-cover"
                       sizes="80px"
                     />
+                    <div className="product-sheen-overlay" />
                   </div>
 
                   <div className="flex-1 min-w-0 flex flex-col justify-between">

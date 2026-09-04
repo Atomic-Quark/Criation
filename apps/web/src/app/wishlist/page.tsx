@@ -137,19 +137,20 @@ export default function WishlistPage() {
           {wishlist.map((product) => (
             <div
               key={product.id}
-              className="bg-white dark:bg-[#1c1916] rounded-3xl border border-[#e8e0d4] dark:border-[#352f29] overflow-hidden shadow-2xs hover:shadow-xl hover:border-[#c25e3f]/50 dark:hover:border-[#d97757]/50 transition-all flex flex-col justify-between group"
+              className="product-card-luxury bg-white dark:bg-[#1c1916] rounded-3xl border border-[#e8e0d4] dark:border-[#352f29] overflow-hidden shadow-2xs hover:border-[#c25e3f]/50 dark:hover:border-[#d97757]/50 transition-all flex flex-col justify-between group"
             >
-              <div className="relative aspect-square w-full bg-[#faf7f2] dark:bg-[#231f1b] overflow-hidden">
+              <div className="product-stage-backdrop relative aspect-square w-full overflow-hidden">
                 <Image
                   src={product.images[0]?.url || "/products/craft-item-01.jpeg"}
                   alt={product.name}
                   fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="product-image-aesthetic object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                 />
+                <div className="product-sheen-overlay" />
                 <button
                   onClick={() => toggleWishlist(product)}
-                  className="absolute top-3 right-3 p-2.5 rounded-2xl bg-white/90 dark:bg-[#1c1916]/90 backdrop-blur-md text-[#b75258] hover:text-[#9e3f45] border border-[#e8e0d4] dark:border-[#352f29] shadow-xs transition-transform hover:scale-105 cursor-pointer"
+                  className="absolute top-3 right-3 p-2.5 rounded-2xl bg-white/90 dark:bg-[#1c1916]/90 backdrop-blur-md text-[#b75258] hover:text-[#9e3f45] border border-[#e8e0d4] dark:border-[#352f29] shadow-xs transition-transform hover:scale-105 cursor-pointer z-3"
                   title="Remove from wishlist"
                 >
                   <Trash2 className="w-4 h-4" />

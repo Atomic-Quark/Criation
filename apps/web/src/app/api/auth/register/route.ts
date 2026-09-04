@@ -5,11 +5,22 @@ import { User } from "@/lib/db/models/User";
 import { signToken, AUTH_COOKIE_NAME, COOKIE_OPTIONS } from "@/lib/auth/jwt";
 import { Role } from "@/types/store";
 import { getClientDeviceInfo } from "@/lib/auth/device";
+import { checkRateLimit, rateLimitExceededResponse } from "@/lib/auth/rateLimit";
 
 const ALLOWED_REGISTER_ROLES: Role[] = ["customer", "seller", "supplier"];
 
 export async function POST(req: NextRequest) {
   try {
+    // 0. Enforce Rate Limiting (5 registration attempts per 60 seconds per IP)
+    const rateCheck = await checkRateLimit(req, {
+      maxRequests: 5,
+      windowSeconds: 60,
+      action: "auth:register",
+    });
+    if (!rateCheck.success) {
+      return rateLimitExceededResponse(rateCheck);
+    }
+
     const clientScan = getClientDeviceInfo(req);
     const body = await req.json();
     const { name, email, phone, password, role = "customer" } = body;

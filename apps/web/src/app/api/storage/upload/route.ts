@@ -3,7 +3,8 @@ import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { connectToDatabase } from "@/lib/db/mongodb";
 import { Upload } from "@/lib/db/models/Upload";
-import { verifyToken, AUTH_COOKIE_NAME } from "@/lib/auth/jwt";
+import { requireRole } from "@/lib/auth/requireRole";
+import { checkRateLimit, rateLimitExceededResponse } from "@/lib/auth/rateLimit";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
@@ -42,25 +43,20 @@ function isValidMagicBytes(buffer: Buffer, mimeType: string): boolean {
 
 export async function POST(req: NextRequest) {
   try {
-    // 1. Authentication Check
-    const token =
-      req.cookies.get(AUTH_COOKIE_NAME)?.value ||
-      req.headers.get("authorization")?.replace("Bearer ", "");
-
-    if (!token) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized: You must be logged in to upload files." },
-        { status: 401 }
-      );
+    // 0. Rate Limiting (10 uploads per 60 seconds per IP)
+    const rateCheck = await checkRateLimit(req, {
+      maxRequests: 10,
+      windowSeconds: 60,
+      action: "storage:upload",
+    });
+    if (!rateCheck.success) {
+      return rateLimitExceededResponse(rateCheck);
     }
 
-    const session = verifyToken(token);
-    if (!session) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized: Invalid or expired session." },
-        { status: 401 }
-      );
-    }
+    // 1. Defense-in-Depth Authentication Check
+    const auth = await requireRole(req, ["customer", "artisan", "seller", "supplier", "admin"]);
+    if (!auth.ok) return auth.response;
+    const session = auth.user;
 
     // 2. Parse Multipart Form Data
     const formData = await req.formData();
